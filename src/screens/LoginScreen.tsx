@@ -46,7 +46,7 @@ export default function LoginScreen() {
                     <Text style={styles.filledButtonText}>ENTRAR</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.outlinedButton}>
+                <TouchableOpacity style={styles.outlinedButton} onPress={() => navigation.navigate('RegisterScreen')}>
                     <Text style={styles.outlinedButtonText}>CRIAR CONTA</Text>
                 </TouchableOpacity>
             </View>
