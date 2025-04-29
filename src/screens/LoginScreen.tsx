@@ -19,7 +19,9 @@ export default function LoginScreen() {
     return (
         <View style={styles.container}>
             <View style={styles.card}>
-                <Text style={styles.logo}>TASKLY</Text>
+                <Text style={styles.logo}>TASKLY
+                    <View style={styles.dot} />
+                </Text>
 
                 <TextInput
                     placeholder="E-mail"
@@ -122,5 +124,14 @@ const styles = StyleSheet.create({
         color: COLORS.primaryLight,
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    dot: {
+        position: 'absolute',
+        width: 19.5,
+        height: 19.5,
+        borderRadius: 9.75,
+        backgroundColor: COLORS.primaryLight,
+        top: 1,
+        right: -22,
     },
 });

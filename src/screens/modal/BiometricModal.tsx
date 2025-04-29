@@ -5,19 +5,19 @@ import {
     TouchableOpacity,
     StyleSheet,
 } from 'react-native';
-import { COLORS } from '../utils/constants';
+import { COLORS } from '../../utils/constants';
 import { useNavigation } from '@react-navigation/native';
 
 export default function BiometricModal() {
     const navigation = useNavigation<any>();
 
     const handleSkip = () => {
-        navigation.navigate('HomeScreen'); // vamos criar Home depois
+        navigation.navigate('AvatarSelectionScreen');
     };
 
     const handleActivate = () => {
-        // Aqui futuramente chamamos biometria
-        navigation.navigate('HomeScreen');
+        // No futuro: aqui integrará a biometria real
+        navigation.navigate('AvatarSelectionScreen');
     };
 
     return (

@@ -6,9 +6,9 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { TextInputMask } from 'react-native-masked-text';
+import { TextInput } from 'react-native';
 import { COLORS } from '../utils/constants';
 import { useNavigation } from '@react-navigation/native';
-import { registerUser } from '../services/api';
 
 export default function RegisterScreen() {
     const navigation = useNavigation<any>();
@@ -47,8 +47,8 @@ export default function RegisterScreen() {
         if (!phoneNumber.trim()) {
             newErrors.phoneNumber = 'Número de celular é obrigatório.';
             isValid = false;
-        } else if (!/^\(\d{2}\)\s?\d{4,5}-\d{4}$/.test(phoneNumber)) {
-            newErrors.phoneNumber = 'Formato de telefone inválido.';
+        } else if (phoneNumber.replace(/\D/g, '').length < 10) {
+            newErrors.phoneNumber = 'Formato de número inválido.';
             isValid = false;
         }
 
@@ -69,19 +69,9 @@ export default function RegisterScreen() {
         return isValid;
     };
 
-    const handleRegister = async () => {
+    const handleRegister = () => {
         if (validate()) {
-            try {
-                await registerUser({
-                    name,
-                    email,
-                    phone_number: phoneNumber.replace(/\D/g, ''),
-                    password,
-                });
-                navigation.navigate('BiometricModal');
-            } catch (error) {
-                console.error('Erro ao registrar usuário:', error);
-            }
+            navigation.navigate('BiometricModal');
         }
     };
 
@@ -90,27 +80,59 @@ export default function RegisterScreen() {
             <View style={styles.card}>
                 <Text style={styles.title}>Criar Conta</Text>
 
-                <InputField value={name} onChangeText={setName} placeholder="Nome completo" error={errors.name} />
-                <InputField value={email} onChangeText={setEmail} placeholder="E-mail" error={errors.email} />
+                <TextInput
+                    placeholder="Nome completo"
+                    placeholderTextColor={COLORS.secondaryText}
+                    value={name}
+                    onChangeText={setName}
+                    style={styles.input}
+                />
+                {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
 
-                <MaskedInput
-                    type="cel-phone"
+                <TextInput
+                    placeholder="E-mail"
+                    placeholderTextColor={COLORS.secondaryText}
+                    value={email}
+                    onChangeText={setEmail}
+                    style={styles.input}
+                />
+                {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+
+                <TextInputMask
+                    type={'cel-phone'}
                     options={{
                         maskType: 'BRL',
                         withDDD: true,
                         dddMask: '(99) ',
                     }}
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
                     placeholder="Número de celular"
                     placeholderTextColor={COLORS.secondaryText}
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
                     style={styles.input}
                     keyboardType="numeric"
                 />
                 {errors.phoneNumber ? <Text style={styles.errorText}>{errors.phoneNumber}</Text> : null}
 
-                <InputField value={password} onChangeText={setPassword} placeholder="Senha" secureTextEntry error={errors.password} />
-                <InputField value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Confirmar senha" secureTextEntry error={errors.confirmPassword} />
+                <TextInput
+                    placeholder="Senha"
+                    placeholderTextColor={COLORS.secondaryText}
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    style={styles.input}
+                />
+                {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+
+                <TextInput
+                    placeholder="Confirmar senha"
+                    placeholderTextColor={COLORS.secondaryText}
+                    secureTextEntry
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    style={styles.input}
+                />
+                {errors.confirmPassword ? <Text style={styles.errorText}>{errors.confirmPassword}</Text> : null}
 
                 <TouchableOpacity style={styles.filledButton} onPress={handleRegister}>
                     <Text style={styles.filledButtonText}>CRIAR CONTA</Text>
@@ -119,25 +141,6 @@ export default function RegisterScreen() {
         </View>
     );
 }
-
-function InputField({ value, onChangeText, placeholder, error, secureTextEntry = false }: any) {
-    return (
-        <>
-            <TextInputMask
-                type={null}
-                value={value}
-                onChangeText={onChangeText}
-                placeholder={placeholder}
-                placeholderTextColor={COLORS.secondaryText}
-                secureTextEntry={secureTextEntry}
-                style={styles.input}
-            />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        </>
-    );
-}
-
-const MaskedInput = TextInputMask;
 
 const styles = StyleSheet.create({
     container: {
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.primaryLight,
         fontSize: 16,
         color: COLORS.mainText,
-        marginBottom: 4,
+        marginBottom: 40,
     },
     errorText: {
         color: COLORS.error,
