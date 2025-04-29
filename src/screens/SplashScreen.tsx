@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../utils/constants';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SplashScreen() {
+    const navigation = useNavigation<any>();
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigation.replace('LoginScreen');
+        }, 2000); // 2 segundos
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <View style={styles.container}>
             <View style={styles.logoWrapper}>

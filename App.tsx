@@ -1,13 +1,14 @@
 import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'react-native';
-import {COLORS} from "./src/utils/constants.ts";
-import SplashScreen from "./src/screens/SplashScreen.tsx";
+import AppNavigator from './src/navigation/AppNavigator';
+import { COLORS } from './src/utils/constants';
 
 export default function App() {
     return (
-        <>
+        <GestureHandlerRootView style={{ flex: 1 }}>
             <StatusBar backgroundColor={COLORS.background} barStyle="dark-content" />
-            <SplashScreen />
-        </>
+            <AppNavigator />
+        </GestureHandlerRootView>
     );
 }
