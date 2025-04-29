@@ -1,57 +1,84 @@
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-} from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
+import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import {COLORS} from "../utils/constants.ts";
+import Input from '../components/atoms/Input';
+import Button from '../components/atoms/Button';
+import Checkbox from '../components/atoms/Checkbox';
+import { COLORS } from '../utils/constants';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
+    const [errors, setErrors] = useState({ email: '', password: '' });
+
+    const validateFields = () => {
+        const newErrors = { email: '', password: '' };
+        let isValid = true;
+
+        if (!email.trim()) {
+            newErrors.email = 'E-mail é obrigatório.';
+            isValid = false;
+        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+            newErrors.email = 'Formato de e-mail inválido.';
+            isValid = false;
+        }
+
+        if (!password.trim()) {
+            newErrors.password = 'Senha é obrigatória.';
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleLogin = () => {
+        if (validateFields()) {
+            navigation.navigate('HomeScreen');
+        }
+    };
 
     return (
         <View style={styles.container}>
-            <View style={styles.card}>
-                <Text style={styles.logo}>TASKLY
-                    <View style={styles.dot} />
-                </Text>
-
-                <TextInput
-                    placeholder="E-mail"
-                    placeholderTextColor={COLORS.secondaryText}
-                    value={email}
-                    onChangeText={setEmail}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Senha"
-                    placeholderTextColor={COLORS.secondaryText}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    style={styles.input}
-                />
-
-                <View style={styles.checkboxRow}>
-                    <CheckBox value={rememberMe} onValueChange={setRememberMe} />
-                    <Text style={styles.checkboxLabel}>Lembrar de mim</Text>
-                </View>
-
-                <TouchableOpacity style={styles.filledButton}>
-                    <Text style={styles.filledButtonText}>ENTRAR</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.outlinedButton} onPress={() => navigation.navigate('RegisterScreen')}>
-                    <Text style={styles.outlinedButtonText}>CRIAR CONTA</Text>
-                </TouchableOpacity>
+            <View style={styles.logoWrapper}>
+                <Text style={styles.logoText}>TASKLY</Text>
+                <View style={styles.dot} />
             </View>
+
+            <Input
+                label="E-mail"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={errors.email}
+            />
+
+            <Input
+                label="Senha"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                error={errors.password}
+            />
+
+            <View style={styles.checkboxContainer}>
+                <Checkbox
+                    label="Lembrar de mim"
+                    value={rememberMe}
+                    onValueChange={setRememberMe}
+                />
+            </View>
+
+            <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
+            <Button
+                title="CRIAR CONTA"
+                variant="outlined"
+                onPress={() => navigation.navigate('RegisterScreen')}
+            />
         </View>
     );
 }
@@ -62,68 +89,19 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.background,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 24,
     },
-    card: {
+    logoWrapper: {
         alignItems: 'center',
-        width: '100%',
+        justifyContent: 'center',
+        marginBottom: 40,
+        position: 'relative',
     },
-    logo: {
+    logoText: {
         fontFamily: 'Roboto',
         fontWeight: '700',
         fontSize: 48,
         color: COLORS.mainText,
-        marginBottom: 32,
-    },
-    input: {
-        width: 329,
-        height: 47,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        borderWidth: 2,
-        backgroundColor: '#FFFFFF',
-        borderColor: COLORS.primaryLight,
-        fontSize: 16,
-        color: COLORS.mainText,
-        marginBottom: 12,
-    },
-    checkboxRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    checkboxLabel: {
-        fontSize: 16,
-        marginLeft: 8,
-        color: COLORS.mainText,
-    },
-    filledButton: {
-        width: 329,
-        height: 47,
-        borderRadius: 8,
-        backgroundColor: COLORS.primaryLight,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    filledButtonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    outlinedButton: {
-        width: 329,
-        height: 47,
-        borderRadius: 8,
-        borderWidth: 2,
-        borderColor: COLORS.primaryLight,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    outlinedButtonText: {
-        color: COLORS.primaryLight,
-        fontWeight: 'bold',
-        fontSize: 16,
     },
     dot: {
         position: 'absolute',
@@ -131,7 +109,12 @@ const styles = StyleSheet.create({
         height: 19.5,
         borderRadius: 9.75,
         backgroundColor: COLORS.primaryLight,
-        top: 1,
-        right: -22,
+        top: 8,
+        right: -24,
+    },
+    checkboxContainer: {
+        width: 329,
+        alignItems: 'flex-start',
+        marginBottom: 20,
     },
 });
