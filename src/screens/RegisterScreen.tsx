@@ -4,6 +4,9 @@ import {
     Text,
     StyleSheet,
     Modal,
+    KeyboardAvoidingView,
+    ScrollView,
+    Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Input from '../components/atoms/Input';
@@ -86,41 +89,46 @@ export default function RegisterScreen() {
     };
 
     const handleConfirm = () => {
-        // lógica futura da biometria
         setShowModal(false);
         navigation.navigate('AvatarSelectionScreen');
     };
 
     return (
-      <View style={styles.container}>
-          <Text style={styles.title}>Cadastro</Text>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+              <Text style={styles.title}>Cadastro</Text>
 
-          <Input label="Nome completo" value={name} onChangeText={setName} error={errors.name} />
-          <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
-          <Input label="Celular" value={phone} onChangeText={setPhone} maskType="cel-phone" error={errors.phone} />
-          <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
-          <Input label="Confirmar senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry error={errors.confirmPassword} />
+              <Input label="Nome completo" value={name} onChangeText={setName} error={errors.name} />
+              <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
+              <Input label="Celular" value={phone} onChangeText={setPhone} maskType="cel-phone" error={errors.phone} />
+              <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
+              <Input label="Confirmar senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry error={errors.confirmPassword} />
 
-          <Button title="CRIAR CONTA" variant="filled" onPress={handleRegister} />
+              <Button title="CRIAR CONTA" variant="filled" onPress={handleRegister} />
 
-          {/* Modal local embutido */}
-          <Modal visible={showModal} transparent animationType="fade">
-              <View style={styles.overlay}>
-                  <View style={styles.card}>
-                      <Text style={styles.modalTitle}>Ative desbloqueio por Biometria</Text>
-                      <Text style={styles.modalDescription}>
-                          Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
-                      </Text>
+              <Modal visible={showModal} transparent animationType="fade">
+                  <View style={styles.overlay}>
+                      <View style={styles.card}>
+                          <Text style={styles.modalTitle}>Ative desbloqueio por Biometria</Text>
+                          <Text style={styles.modalDescription}>
+                              Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
+                          </Text>
 
-                      <View style={styles.buttonRow}><View style={styles.buttonRow}>
-                          <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} style={{ width: '48%' }} />
-                          <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} style={{ width: '48%' }} />
-                      </View>
+                          <View style={styles.buttonRow}>
+                              <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} style={{ width: '48%' }} />
+                              <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} style={{ width: '48%' }} />
+                          </View>
                       </View>
                   </View>
-              </View>
-          </Modal>
-      </View>
+              </Modal>
+          </ScrollView>
+      </KeyboardAvoidingView>
     );
 }
 
@@ -128,6 +136,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.background,
+    },
+    scrollContainer: {
+        flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 24,
