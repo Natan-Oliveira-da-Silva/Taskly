@@ -1,30 +1,43 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
 import { COLORS } from '../../utils/constants';
 
-type Props = TouchableOpacityProps & {
+type Props = {
     title: string;
-    variant?: 'filled' | 'outlined';
+    variant?: 'filled' | 'outlined' | 'green' | 'danger';
+    onPress: () => void;
+    height?: number;
+    style?: ViewStyle; // ✅ nova prop opcional
 };
 
-export default function Button({ title, variant = 'filled', ...rest }: Props) {
+export default function Button({ title, variant = 'filled', onPress, height = 47, style }: Props) {
+    const buttonStyle: ViewStyle[] = [
+        styles.base,
+        { height },
+        variant === 'filled' && styles.filled,
+        variant === 'outlined' && styles.outlined,
+        variant === 'green' && styles.green,
+        variant === 'danger' && styles.danger,
+        style, // ✅ sobrescreve ou ajusta dinamicamente
+    ].filter(Boolean) as ViewStyle[];
+
+    const textStyle = [
+        styles.text,
+        variant === 'outlined' && { color: COLORS.primaryLight },
+    ];
+
     return (
-        <TouchableOpacity
-            style={[styles.button, variant === 'outlined' ? styles.outlined : styles.filled]}
-            {...rest}
-        >
-            <Text style={[styles.text, variant === 'outlined' ? styles.outlinedText : styles.filledText]}>
-                {title}
-            </Text>
-        </TouchableOpacity>
+      <TouchableOpacity style={buttonStyle} onPress={onPress}>
+          <Text style={textStyle}>{title}</Text>
+      </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
-    button: {
+    base: {
         width: 329,
-        height: 47,
         borderRadius: 8,
+        paddingHorizontal: 16,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 12,
@@ -37,14 +50,15 @@ const styles = StyleSheet.create({
         borderColor: COLORS.primaryLight,
         backgroundColor: 'transparent',
     },
+    green: {
+        backgroundColor: COLORS.secondaryText,
+    },
+    danger: {
+        backgroundColor: COLORS.error,
+    },
     text: {
+        color: '#FFF',
         fontWeight: 'bold',
         fontSize: 16,
-    },
-    filledText: {
-        color: '#FFF',
-    },
-    outlinedText: {
-        color: COLORS.primaryLight,
     },
 });

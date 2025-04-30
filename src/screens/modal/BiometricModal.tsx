@@ -1,107 +1,70 @@
 import React from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import Button from '../../components/atoms/Button';
 import { COLORS } from '../../utils/constants';
 import { useNavigation } from '@react-navigation/native';
 
 export default function BiometricModal() {
     const navigation = useNavigation<any>();
 
+    const handleConfirm = () => {
+        navigation.navigate('AvatarSelectionScreen');
+    };
+
     const handleSkip = () => {
         navigation.navigate('AvatarSelectionScreen');
     };
 
-    const handleActivate = () => {
-        // No futuro: aqui integrará a biometria real
-        navigation.navigate('AvatarSelectionScreen');
-    };
-
     return (
-        <View style={styles.overlay}>
-            <View style={styles.modalCard}>
-                <Text style={styles.title}>Ative desbloqueio por Biometria</Text>
-                <Text style={styles.description}>
-                    Deseja ativar o login com biometria para facilitar o acesso ao app?
-                </Text>
+      <View style={styles.overlay}>
+          <View style={styles.card}>
+              <Text style={styles.title}>Ative desbloqueio por Biometria</Text>
+              <Text style={styles.description}>
+                  Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
+              </Text>
 
-                <View style={styles.buttonRow}>
-                    <TouchableOpacity style={styles.outlinedButton} onPress={handleSkip}>
-                        <Text style={styles.outlinedButtonText}>AGORA NÃO</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.filledButton} onPress={handleActivate}>
-                        <Text style={styles.filledButtonText}>ATIVAR</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
+              <View style={styles.buttonRow}>
+                  <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} />
+                  <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} />
+              </View>
+          </View>
+      </View>
     );
 }
 
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.3)',
+        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 24,
     },
-    modalCard: {
+    card: {
         width: '100%',
         backgroundColor: COLORS.background,
         borderRadius: 12,
         padding: 24,
-        alignItems: 'center',
+        alignItems: 'flex-start',
     },
     title: {
         fontFamily: 'Roboto',
         fontWeight: '700',
         fontSize: 20,
         color: COLORS.mainText,
-        marginBottom: 8,
-        textAlign: 'center',
+        marginBottom: 12,
     },
     description: {
-        fontSize: 16,
-        color: COLORS.secondaryText,
-        textAlign: 'center',
+        fontFamily: 'Roboto',
+        fontSize: 15,
+        color: COLORS.mainText,
         marginBottom: 24,
+        textAlign: 'left',
     },
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-    },
-    filledButton: {
-        flex: 1,
-        height: 47,
-        backgroundColor: COLORS.primaryLight,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 8,
-    },
-    filledButtonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    outlinedButton: {
-        flex: 1,
-        height: 47,
-        borderWidth: 2,
-        borderColor: COLORS.primaryLight,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    outlinedButtonText: {
-        color: COLORS.primaryLight,
-        fontWeight: 'bold',
-        fontSize: 16,
+        gap: 12,
     },
 });

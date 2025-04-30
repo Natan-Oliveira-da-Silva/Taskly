@@ -3,32 +3,40 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity,
+    Modal,
 } from 'react-native';
-import { TextInputMask } from 'react-native-masked-text';
-import { TextInput } from 'react-native';
-import { COLORS } from '../utils/constants';
 import { useNavigation } from '@react-navigation/native';
+import Input from '../components/atoms/Input';
+import Button from '../components/atoms/Button';
+import { COLORS } from '../utils/constants';
 
 export default function RegisterScreen() {
     const navigation = useNavigation<any>();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
     const [errors, setErrors] = useState({
         name: '',
         email: '',
-        phoneNumber: '',
+        phone: '',
         password: '',
         confirmPassword: '',
     });
 
-    const validate = () => {
-        const newErrors = { name: '', email: '', phoneNumber: '', password: '', confirmPassword: '' };
+    const validateFields = () => {
+        const newErrors = {
+            name: '',
+            email: '',
+            phone: '',
+            password: '',
+            confirmPassword: '',
+        };
+
         let isValid = true;
 
         if (!name.trim()) {
@@ -44,11 +52,8 @@ export default function RegisterScreen() {
             isValid = false;
         }
 
-        if (!phoneNumber.trim()) {
-            newErrors.phoneNumber = 'Número de celular é obrigatório.';
-            isValid = false;
-        } else if (phoneNumber.replace(/\D/g, '').length < 10) {
-            newErrors.phoneNumber = 'Formato de número inválido.';
+        if (!phone.trim()) {
+            newErrors.phone = 'Celular é obrigatório.';
             isValid = false;
         }
 
@@ -58,7 +63,7 @@ export default function RegisterScreen() {
         }
 
         if (!confirmPassword.trim()) {
-            newErrors.confirmPassword = 'Confirmação de senha é obrigatória.';
+            newErrors.confirmPassword = 'Confirme a senha.';
             isValid = false;
         } else if (password !== confirmPassword) {
             newErrors.confirmPassword = 'As senhas não coincidem.';
@@ -70,75 +75,52 @@ export default function RegisterScreen() {
     };
 
     const handleRegister = () => {
-        if (validate()) {
-            navigation.navigate('BiometricModal');
+        if (validateFields()) {
+            setShowModal(true); // ativa o modal
         }
     };
 
+    const handleSkip = () => {
+        setShowModal(false);
+        navigation.navigate('AvatarSelectionScreen');
+    };
+
+    const handleConfirm = () => {
+        // lógica futura da biometria
+        setShowModal(false);
+        navigation.navigate('AvatarSelectionScreen');
+    };
+
     return (
-        <View style={styles.container}>
-            <View style={styles.card}>
-                <Text style={styles.title}>Criar Conta</Text>
+      <View style={styles.container}>
+          <Text style={styles.title}>Cadastro</Text>
 
-                <TextInput
-                    placeholder="Nome completo"
-                    placeholderTextColor={COLORS.secondaryText}
-                    value={name}
-                    onChangeText={setName}
-                    style={styles.input}
-                />
-                {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
+          <Input label="Nome completo" value={name} onChangeText={setName} error={errors.name} />
+          <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
+          <Input label="Celular" value={phone} onChangeText={setPhone} maskType="cel-phone" error={errors.phone} />
+          <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
+          <Input label="Confirmar senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry error={errors.confirmPassword} />
 
-                <TextInput
-                    placeholder="E-mail"
-                    placeholderTextColor={COLORS.secondaryText}
-                    value={email}
-                    onChangeText={setEmail}
-                    style={styles.input}
-                />
-                {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+          <Button title="CRIAR CONTA" variant="filled" onPress={handleRegister} />
 
-                <TextInputMask
-                    type={'cel-phone'}
-                    options={{
-                        maskType: 'BRL',
-                        withDDD: true,
-                        dddMask: '(99) ',
-                    }}
-                    placeholder="Número de celular"
-                    placeholderTextColor={COLORS.secondaryText}
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    style={styles.input}
-                    keyboardType="numeric"
-                />
-                {errors.phoneNumber ? <Text style={styles.errorText}>{errors.phoneNumber}</Text> : null}
+          {/* Modal local embutido */}
+          <Modal visible={showModal} transparent animationType="fade">
+              <View style={styles.overlay}>
+                  <View style={styles.card}>
+                      <Text style={styles.modalTitle}>Ative desbloqueio por Biometria</Text>
+                      <Text style={styles.modalDescription}>
+                          Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
+                      </Text>
 
-                <TextInput
-                    placeholder="Senha"
-                    placeholderTextColor={COLORS.secondaryText}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    style={styles.input}
-                />
-                {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
-
-                <TextInput
-                    placeholder="Confirmar senha"
-                    placeholderTextColor={COLORS.secondaryText}
-                    secureTextEntry
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    style={styles.input}
-                />
-                {errors.confirmPassword ? <Text style={styles.errorText}>{errors.confirmPassword}</Text> : null}
-
-                <TouchableOpacity style={styles.filledButton} onPress={handleRegister}>
-                    <Text style={styles.filledButtonText}>CRIAR CONTA</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+                      <View style={styles.buttonRow}><View style={styles.buttonRow}>
+                          <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} style={{ width: '48%' }} />
+                          <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} style={{ width: '48%' }} />
+                      </View>
+                      </View>
+                  </View>
+              </View>
+          </Modal>
+      </View>
     );
 }
 
@@ -148,50 +130,47 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.background,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    card: {
-        alignItems: 'center',
-        width: '100%',
+        paddingHorizontal: 24,
     },
     title: {
         fontFamily: 'Roboto',
-        fontWeight: '700',
         fontSize: 32,
+        fontWeight: '700',
         color: COLORS.mainText,
         marginBottom: 24,
     },
-    input: {
-        width: 329,
-        height: 47,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        borderWidth: 2,
-        backgroundColor: '#FFFFFF',
-        borderColor: COLORS.primaryLight,
-        fontSize: 16,
-        color: COLORS.mainText,
-        marginBottom: 40,
-    },
-    errorText: {
-        color: COLORS.error,
-        fontSize: 12,
-        alignSelf: 'flex-start',
-        marginLeft: 16,
-        marginBottom: 8,
-    },
-    filledButton: {
-        width: 329,
-        height: 47,
-        borderRadius: 8,
-        backgroundColor: COLORS.primaryLight,
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 12,
+        padding: 24,
     },
-    filledButtonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 16,
+    card: {
+        width: '100%',
+        backgroundColor: COLORS.background,
+        borderRadius: 12,
+        padding: 24,
+        alignItems: 'flex-start',
+    },
+    modalTitle: {
+        fontFamily: 'Roboto',
+        fontWeight: '700',
+        fontSize: 20,
+        color: COLORS.mainText,
+        marginBottom: 12,
+    },
+    modalDescription: {
+        fontFamily: 'Roboto',
+        fontSize: 15,
+        color: COLORS.secondaryText,
+        marginBottom: 24,
+        textAlign: 'left',
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        gap: 12,
     },
 });

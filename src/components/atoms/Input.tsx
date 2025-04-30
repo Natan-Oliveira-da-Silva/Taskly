@@ -7,16 +7,20 @@ import {
     StyleSheet,
     Animated,
 } from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
 import { COLORS } from '../../utils/constants';
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
+type MaskType = 'cel-phone' | 'email';
+
 type Props = TextInputProps & {
     label: string;
     error?: string;
+    maskType?: MaskType;
 };
 
-export default function Input({ label, error, value, ...rest }: Props) {
+export default function Input({ label, error, value, maskType, ...rest }: Props) {
     const [focused, setFocused] = useState(false);
     const animated = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -44,25 +48,41 @@ export default function Input({ label, error, value, ...rest }: Props) {
         zIndex: 1,
     };
 
+    const inputCommonProps = {
+        style: styles.input,
+        value,
+        onFocus: () => setFocused(true),
+        onBlur: () => setFocused(false),
+        placeholderTextColor: COLORS.secondaryText,
+        ...rest,
+    };
+
     return (
-        <View style={styles.wrapper}>
-            <AnimatedText style={labelStyle}>{label}</AnimatedText>
-            <TextInput
-                style={styles.input}
-                value={value}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
-                placeholderTextColor={COLORS.secondaryText}
-                {...rest}
+      <View style={styles.wrapper}>
+          <AnimatedText style={labelStyle}>{label}</AnimatedText>
+
+          {maskType === 'cel-phone' ? (
+            <TextInputMask
+              type="cel-phone"
+              options={{ mask: '(99) 99999-9999'}}
+              {...inputCommonProps}
             />
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-        </View>
+          ) : (
+            <TextInput
+              {...inputCommonProps}
+              keyboardType={maskType === 'email' ? 'email-address' : rest.keyboardType}
+              autoCapitalize={maskType === 'email' ? 'none' : rest.autoCapitalize}
+            />
+          )}
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+      </View>
     );
 }
 
 const styles = StyleSheet.create({
     wrapper: {
-        marginBottom: 30,
+        marginBottom: 36,
         width: 329,
     },
     input: {

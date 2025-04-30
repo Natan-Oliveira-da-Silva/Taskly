@@ -7,7 +7,6 @@ import RegisterScreen from '../screens/RegisterScreen';
 import AvatarSelectionScreen from '../screens/AvatarSelectionScreen';
 import HomeScreen from '../screens/HomeScreen';
 import { RootStackParamList } from './types';
-import BiometricModal from "../screens/modal/BiometricModal.tsx";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -18,7 +17,6 @@ export default function AppNavigator() {
                 <Stack.Screen name="SplashScreen" component={SplashScreen} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-                <Stack.Screen name="BiometricModal" component={BiometricModal} />
                 <Stack.Screen name="AvatarSelectionScreen" component={AvatarSelectionScreen} />
                 <Stack.Screen name="HomeScreen" component={HomeScreen} />
             </Stack.Navigator>

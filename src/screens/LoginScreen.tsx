@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
@@ -8,7 +8,6 @@ import { COLORS } from '../utils/constants';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
@@ -42,44 +41,43 @@ export default function LoginScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.logoWrapper}>
-                <Text style={styles.logoText}>TASKLY</Text>
-                <View style={styles.dot} />
-            </View>
+      <View style={styles.container}>
+          <View style={styles.logoWrapper}>
+              <Text style={styles.logoText}>TASKLY</Text>
+              <View style={styles.dot} />
+          </View>
 
-            <Input
-                label="E-mail"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={errors.email}
-            />
+          <Input
+            label="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            maskType="email"
+            error={errors.email}
+          />
 
-            <Input
-                label="Senha"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                error={errors.password}
-            />
+          <Input
+            label="Senha"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            error={errors.password}
+          />
 
-            <View style={styles.checkboxContainer}>
-                <Checkbox
-                    label="Lembrar de mim"
-                    value={rememberMe}
-                    onValueChange={setRememberMe}
-                />
-            </View>
+          <View style={styles.checkboxContainer}>
+              <Checkbox
+                label="Lembrar de mim"
+                value={rememberMe}
+                onValueChange={setRememberMe}
+              />
+          </View>
 
-            <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
-            <Button
-                title="CRIAR CONTA"
-                variant="outlined"
-                onPress={() => navigation.navigate('RegisterScreen')}
-            />
-        </View>
+          <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
+          <Button
+            title="CRIAR CONTA"
+            variant="outlined"
+            onPress={() => navigation.navigate('RegisterScreen')}
+          />
+      </View>
     );
 }
 

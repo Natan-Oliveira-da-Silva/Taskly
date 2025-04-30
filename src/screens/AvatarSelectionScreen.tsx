@@ -2,111 +2,133 @@ import React, { useState } from 'react';
 import {
     View,
     Text,
-    Image,
-    TouchableOpacity,
     StyleSheet,
+    TouchableOpacity,
+    Image,
+    Alert,
 } from 'react-native';
-import { COLORS } from '../utils/constants';
 import { useNavigation } from '@react-navigation/native';
+import { COLORS } from '../utils/constants';
+import Button from '../components/atoms/Button';
+
+const avatars = [
+    require('../assets/avatars/avatar1.jpg'),
+    require('../assets/avatars/avatar1.jpg'),
+    require('../assets/avatars/avatar1.jpg'),
+    require('../assets/avatars/avatar1.jpg'),
+    require('../assets/avatars/avatar1.jpg'),
+];
+
+const borderColors = ['#5B3CC4', '#ca9872', '#32C25B', '#de2000', '#A97E5D'];
 
 export default function AvatarSelectionScreen() {
     const navigation = useNavigation<any>();
     const [selected, setSelected] = useState<number | null>(null);
 
-    const avatars = [
-        require('../assets/avatars/avatar1.jpg'),
-        require('../assets/avatars/avatar1.jpg'),
-        require('../assets/avatars/avatar1.jpg'),
-        require('../assets/avatars/avatar1.jpg'),
-        require('../assets/avatars/avatar1.jpg'),
-    ];
+    const handleConfirm = async () => {
+        if (selected === null) {
+            Alert.alert('Selecione um avatar');
+            return;
+        }
 
-    const handleConfirm = () => {
-        if (selected !== null) {
+        const success = await mockUpdateAvatar();
+        if (success) {
             navigation.navigate('HomeScreen');
+        } else {
+            Alert.alert('Erro ao salvar avatar');
         }
     };
 
+    const mockUpdateAvatar = async (): Promise<boolean> => {
+        return new Promise(resolve => setTimeout(() => resolve(true), 500));
+    };
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Selecione seu avatar</Text>
-            <Text style={styles.subtitle}>Escolha somente um</Text>
+      <View style={styles.container}>
+          <Text style={styles.title}>SELECIONE UM AVATAR</Text>
+          <Text style={styles.subtitle}>(Escolha somente um)</Text>
 
-            <View style={styles.avatarGrid}>
-                {avatars.map((src, index) => (
-                    <TouchableOpacity
-                        key={index}
-                        style={[
-                            styles.avatarCircle,
-                            selected === index && styles.selectedAvatar,
-                        ]}
-                        onPress={() => setSelected(index)}
-                    >
-                        <Image source={src} style={styles.avatarImage} />
-                    </TouchableOpacity>
-                ))}
-            </View>
+          <View style={styles.grid}>
+              <View style={styles.row}>
+                  {[0, 1, 2].map(index => renderAvatar(index))}
+              </View>
+              <View style={styles.row}>
+                  {[3, 4].map(index => renderAvatar(index))}
+              </View>
+          </View>
 
-            <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-                <Text style={styles.confirmButtonText}>CONFIRMAR SELEÇÃO</Text>
-            </TouchableOpacity>
-        </View>
+          <Button title="CONFIRMAR SELEÇÃO" variant="filled" onPress={handleConfirm} height={39} />
+      </View>
     );
+
+    function renderAvatar(index: number) {
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={() => setSelected(index)}
+            style={[
+                styles.avatarWrapper,
+                { borderColor: borderColors[index] },
+                selected === index && styles.selected,
+            ]}
+          >
+              <Image source={avatars[index]} style={styles.avatar} />
+              <View style={[
+                  styles.overlay,
+                  selected === index && styles.overlaySelected
+              ]} />
+          </TouchableOpacity>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.background,
-        padding: 24,
         alignItems: 'center',
+        paddingTop: 64,
     },
     title: {
-        fontFamily: 'Roboto',
+        fontSize: 20,
         fontWeight: '700',
-        fontSize: 24,
         color: COLORS.mainText,
-        marginTop: 32,
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: 14,
         color: COLORS.secondaryText,
-        marginBottom: 32,
+        marginBottom: 24,
     },
-    avatarGrid: {
+    grid: {
+        marginBottom: 32,
+        gap: 8,
+    },
+    row: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 16,
         justifyContent: 'center',
-        marginBottom: 32,
+        gap: 8,
+        marginBottom: 8,
     },
-    avatarCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        overflow: 'hidden',
+    avatarWrapper: {
+        width: 96,
+        height: 96,
+        borderRadius: 48,
         borderWidth: 3,
-        borderColor: 'transparent',
-        margin: 8,
+        overflow: 'hidden',
+        position: 'relative',
     },
-    selectedAvatar: {
-        borderColor: COLORS.primaryLight,
+    selected: {
     },
-    avatarImage: {
+    avatar: {
         width: '100%',
         height: '100%',
+        borderRadius: 48,
     },
-    confirmButton: {
-        width: 329,
-        height: 47,
-        borderRadius: 8,
-        backgroundColor: COLORS.primaryLight,
-        justifyContent: 'center',
-        alignItems: 'center',
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)',
     },
-    confirmButtonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 16,
+    overlaySelected: {
+        backgroundColor: 'rgba(0,0,0,0.1)',
     },
 });
