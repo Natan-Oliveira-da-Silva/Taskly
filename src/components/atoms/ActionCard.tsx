@@ -5,11 +5,12 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 interface Props {
   label: string;
   icon: string;
+  onPress?: () => void; // <-- adiciona suporte a clique
 }
 
-export default function ActionCard({ label, icon }: Props) {
+export default function ActionCard({ label, icon, onPress }: Props) {
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
       <Text style={styles.cardLabel}>{label}</Text>
       <Icon name={icon} size={28} color="#444" />
     </TouchableOpacity>
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginRight: 12,
-    width:  160,
+    width: 160,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 3,
@@ -35,3 +36,4 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
 });
+
