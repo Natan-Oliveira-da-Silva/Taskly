@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import Checkbox from '../components/atoms/Checkbox';
 import { COLORS } from '../utils/constants';
+import { authService } from '../domain/auth';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
@@ -34,50 +35,55 @@ export default function LoginScreen() {
         return isValid;
     };
 
-    const handleLogin = () => {
-        if (validateFields()) {
+    const handleLogin = async () => {
+        if (!validateFields()) return;
+
+        try {
+            await authService.login({ email, password });
             navigation.navigate('HomeScreen');
+        } catch (error) {
+            Alert.alert('Erro', 'E-mail ou senha inválidos.');
         }
     };
 
     return (
-      <View style={styles.container}>
-          <View style={styles.logoWrapper}>
-              <Text style={styles.logoText}>TASKLY</Text>
-              <View style={styles.dot} />
-          </View>
+        <View style={styles.container}>
+            <View style={styles.logoWrapper}>
+                <Text style={styles.logoText}>TASKLY</Text>
+                <View style={styles.dot} />
+            </View>
 
-          <Input
-            label="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            maskType="email"
-            error={errors.email}
-          />
+            <Input
+                label="E-mail"
+                value={email}
+                onChangeText={setEmail}
+                maskType="email"
+                error={errors.email}
+            />
 
-          <Input
-            label="Senha"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            error={errors.password}
-          />
+            <Input
+                label="Senha"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                error={errors.password}
+            />
 
-          <View style={styles.checkboxContainer}>
-              <Checkbox
-                label="Lembrar de mim"
-                value={rememberMe}
-                onValueChange={setRememberMe}
-              />
-          </View>
+            <View style={styles.checkboxContainer}>
+                <Checkbox
+                    label="Lembrar de mim"
+                    value={rememberMe}
+                    onValueChange={setRememberMe}
+                />
+            </View>
 
-          <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
-          <Button
-            title="CRIAR CONTA"
-            variant="outlined"
-            onPress={() => navigation.navigate('RegisterScreen')}
-          />
-      </View>
+            <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
+            <Button
+                title="CRIAR CONTA"
+                variant="outlined"
+                onPress={() => navigation.navigate('RegisterScreen')}
+            />
+        </View>
     );
 }
 
