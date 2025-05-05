@@ -1,25 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface Props {
   label: string;
   icon: string;
-  onPress?: () => void; // <-- adiciona suporte a clique
+  onPress?: () => void;
+  isDarkMode?: boolean; // <-- novo prop
 }
 
-export default function ActionCard({ label, icon, onPress }: Props) {
+export default function ActionCard({ label, icon, onPress, isDarkMode = false }: Props) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Text style={styles.cardLabel}>{label}</Text>
-      <Icon name={icon} size={28} color="#444" />
+    <TouchableOpacity
+      style={[
+        styles.card,
+        { backgroundColor: isDarkMode ? '#1E1E1E' : '#fff' },
+      ]}
+      onPress={onPress}
+    >
+      <Text style={[styles.cardLabel, { color: isDarkMode ? '#fff' : '#1E1E1E' }]}>
+        {label}
+      </Text>
+      <Icon name={icon} size={28} color={isDarkMode ? '#fff' : '#444'} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     marginRight: 12,

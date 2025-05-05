@@ -1,8 +1,5 @@
+// src/navigation/types.ts
 export type RootStackParamList = {
-    SplashScreen: undefined;
-    LoginScreen: undefined;
-    RegisterScreen: undefined;
-    BiometricModal: undefined;
-    AvatarSelectionScreen: undefined;
-    HomeScreen: undefined;
+  ProfileScreen: undefined;
+  TermsScreen: undefined;
 };

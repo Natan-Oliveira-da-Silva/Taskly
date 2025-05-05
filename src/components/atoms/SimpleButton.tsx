@@ -3,19 +3,28 @@ import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface Props {
   label: string;
+  onPress?: () => void;
+  isDarkMode?: boolean; // <-- novo prop
 }
 
-export default function SimpleButton({ label }: Props) {
+export default function SimpleButton({ label, onPress, isDarkMode = false }: Props) {
   return (
-    <TouchableOpacity style={styles.button}>
-      <Text style={styles.buttonText}>{label}</Text>
+    <TouchableOpacity
+      style={[
+        styles.button,
+        { backgroundColor: isDarkMode ? '#1E1E1E' : '#fff' },
+      ]}
+      onPress={onPress}
+    >
+      <Text style={[styles.buttonText, { color: isDarkMode ? '#fff' : '#000' }]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
     marginTop: 8,
@@ -26,3 +35,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+

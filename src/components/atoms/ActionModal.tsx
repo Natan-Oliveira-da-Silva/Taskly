@@ -8,6 +8,7 @@ type Props = {
   description: string;
   confirmLabel: string;
   confirmColor: string;
+  isDarkMode?: boolean;
 };
 
 export default function ActionModal({
@@ -17,6 +18,7 @@ export default function ActionModal({
   description,
   confirmLabel,
   confirmColor,
+  isDarkMode = false,
 }: Props) {
   return (
     <Modal
@@ -26,13 +28,39 @@ export default function ActionModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
+        <View
+          style={[
+            styles.modal,
+            { backgroundColor: isDarkMode ? '#1E1E1E' : '#fff' },
+          ]}
+        >
+          <Text
+            style={[
+              styles.title,
+              { color: isDarkMode ? '#fff' : '#000' },
+            ]}
+          >
+            {title}
+          </Text>
+          <Text
+            style={[
+              styles.description,
+              { color: isDarkMode ? '#fff' : '#444' },
+            ]}
+          >
+            {description}
+          </Text>
 
           <View style={styles.actions}>
             <TouchableOpacity onPress={onClose} style={styles.cancel}>
-              <Text style={styles.cancelText}>Agora não</Text>
+              <Text
+                style={[
+                  styles.cancelText,
+                  { color: isDarkMode ? '#fff' : '#5B3CC4' },
+                ]}
+              >
+                Agora não
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -57,7 +85,6 @@ const styles = StyleSheet.create({
   },
   modal: {
     width: '80%',
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
     elevation: 5,
@@ -69,7 +96,6 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: '#444',
     marginBottom: 20,
   },
   actions: {
@@ -82,7 +108,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   cancelText: {
-    color: '#5B3CC4',
     fontWeight: '600',
   },
   confirm: {
