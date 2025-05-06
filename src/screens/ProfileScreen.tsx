@@ -15,8 +15,8 @@ import { RootStackParamList } from '../navigation/types';
 type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
 
-export default function ProfileScreen({navigation}) {
-  //const navigation = useNavigation();
+export default function ProfileScreen() {
+  const navigation = useNavigation();
 
 
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);

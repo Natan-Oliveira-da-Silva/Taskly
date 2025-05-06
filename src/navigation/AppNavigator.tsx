@@ -12,8 +12,8 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="ProfileScreen">
-        <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>
-        <Stack.Screen name="TermsScreen" component={TermsScreen} options={{ title: 'Termos e Regulamentos' }} />
+        <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="TermsScreen" component={TermsScreen} options={{headerShown:false}} />
       </Stack.Navigator>
     </NavigationContainer>
   );

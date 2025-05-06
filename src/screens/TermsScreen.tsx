@@ -11,7 +11,7 @@ export default function TermsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>‹ VOLTAR</Text>
+          <Text style={styles.backText}>‹  VOLTAR</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Termos e regulamentos</Text>
       </View>
@@ -31,21 +31,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: 56,
+    height: 110,
     backgroundColor: '#e0e0e0',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderColor: '#ccc',
+    paddingTop:20,
   },
   backText: {
-    fontSize: 16,
-    color: '#555',
+    paddingTop: 10,
+    fontSize: 20,
+    color: '#fff',
     fontWeight: 'bold',
-    marginRight: 12,
+    backgroundColor: '#1E1E1E',
+    marginRight: 50,
+    marginLeft: 30,
+    padding: 10,
+    borderRadius:20,
   },
   headerTitle: {
+    paddingTop: 5,
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
