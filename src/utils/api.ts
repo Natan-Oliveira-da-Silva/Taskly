@@ -1,10 +1,9 @@
-// src/utils/api.ts
 import axios from 'axios';
 import { storage } from './storage';
 import { authService } from '../domain/auth';
 
 const api = axios.create({
-    baseURL: 'https://sua-api.com',
+    baseURL: 'http://15.229.11.44:3000',
     timeout: 10000,
 });
 
@@ -27,54 +26,76 @@ api.interceptors.request.use(async (config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if (!config.headers['Content-Type']) {
+        config.headers['Content-Type'] = 'application/json';
+    }
+
     return config;
 });
 
 api.interceptors.response.use(
-    response => response,
-    async error => {
-        const originalRequest = error.config;
+  response => response,
+  async error => {
+      const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+      if (
+        error.response?.status === 401 &&
+        !originalRequest._retry &&
+        !originalRequest.url.includes('/auth/login')
+      ) {
+          originalRequest._retry = true;
 
-            if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({
-                        resolve: (token: string) => {
-                            originalRequest.headers.Authorization = `Bearer ${token}`;
-                            resolve(api(originalRequest));
-                        },
-                        reject: (err: any) => reject(err),
-                    });
-                });
-            }
+          if (isRefreshing) {
+              return new Promise((resolve, reject) => {
+                  failedQueue.push({
+                      resolve: (token: string) => {
+                          originalRequest.headers.Authorization = `Bearer ${token}`;
+                          resolve(api(originalRequest));
+                      },
+                      reject: (err: any) => reject(err),
+                  });
+              });
+          }
 
-            isRefreshing = true;
+          isRefreshing = true;
 
-            try {
-                const refreshToken = await storage.getRefreshToken();
-                if (!refreshToken) throw new Error('No refresh token');
+          try {
+              const refreshToken = await storage.getRefreshToken();
+              if (!refreshToken) throw new Error('No refresh token');
 
-                const refreshed = await authService.refreshToken({ refreshToken });
-                await storage.saveToken(refreshed.idToken);
-                await storage.saveRefreshToken(refreshed.refreshToken);
+              const refreshed = await authService.refreshToken({ refreshToken });
+              await storage.saveToken(refreshed.idToken);
+              await storage.saveRefreshToken(refreshed.refreshToken);
 
-                processQueue(null, refreshed.idToken);
+              processQueue(null, refreshed.idToken);
 
-                originalRequest.headers.Authorization = `Bearer ${refreshed.idToken}`;
-                return api(originalRequest);
-            } catch (err) {
-                processQueue(err, null);
-                await storage.clear();
-                return Promise.reject(err);
-            } finally {
-                isRefreshing = false;
-            }
-        }
+              originalRequest.headers.Authorization = `Bearer ${refreshed.idToken}`;
+              return api(originalRequest);
+          } catch (err) {
+              processQueue(err, null);
+              await storage.clear();
+              return Promise.reject(err);
+          } finally {
+              isRefreshing = false;
+          }
+      }
 
-        return Promise.reject(error);
-    }
+      return Promise.reject(error);
+  }
 );
+
+api.interceptors.request.use(request => {
+    console.log('Request: 1', request);
+    return request;
+});
+
+api.interceptors.response.use(response => {
+    console.log('Response: 2', response);
+    return response;
+}, error => {
+    console.log('Error Response:', error.response);
+    return Promise.reject(error);
+});
 
 export default api;
