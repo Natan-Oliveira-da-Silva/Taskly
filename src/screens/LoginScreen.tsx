@@ -1,17 +1,55 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, Alert, ActivityIndicator } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import Checkbox from '../components/atoms/Checkbox';
 import { COLORS } from '../utils/constants';
+import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import BiometricModal from './modal/BiometricModal.tsx';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
+    const route = useRoute<any>();
+    const auth = useAuth();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [errors, setErrors] = useState({ email: '', password: '' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [showBiometricModal, setShowBiometricModal] = useState(false);
+
+    useEffect(() => {
+        if (route.params?.email) setEmail(route.params.email);
+        if (route.params?.password) setPassword(route.params.password);
+    }, [route.params]);
+
+    useEffect(() => {
+        const tryBiometricLogin = async () => {
+            const enabled = await AsyncStorage.getItem('biometricEnabled');
+            const token = await AsyncStorage.getItem('biometricCredentials');
+            if (!enabled || !token) return;
+
+            const rnBiometrics = new ReactNativeBiometrics();
+            const { available } = await rnBiometrics.isSensorAvailable();
+            if (!available) return;
+
+            const { success } = await rnBiometrics.simplePrompt({ promptMessage: 'Login com biometria' });
+            if (success) {
+                try {
+                    const { email, password } = JSON.parse(token);
+                    await handleSignIn(email, password);
+                } catch {
+                    Alert.alert('Erro', 'Falha no login biométrico.');
+                }
+            }
+        };
+
+        tryBiometricLogin();
+    }, [navigation]);
 
     const validateFields = () => {
         const newErrors = { email: '', password: '' };
@@ -34,9 +72,30 @@ export default function LoginScreen() {
         return isValid;
     };
 
-    const handleLogin = () => {
-        if (validateFields()) {
-            navigation.navigate('HomeScreen');
+    const handleSignIn = async (email: string, password: string) => {
+        try {
+            await auth.signIn(email, password);
+        } catch {
+            Alert.alert('Erro', 'E-mail ou senha inválidos.');
+        }
+    };
+
+    const handleLogin = async () => {
+        if (!validateFields()) return;
+
+        setIsLoading(true);
+        try {
+            await handleSignIn(email, password);
+            if (rememberMe) {
+                await AsyncStorage.setItem('biometricCredentials', JSON.stringify({ email, password }));
+            }
+            await AsyncStorage.setItem('lastLogin', JSON.stringify({ email, password }));
+
+            if (route.params?.showBiometricModal) {
+                setShowBiometricModal(true);
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -47,36 +106,23 @@ export default function LoginScreen() {
               <View style={styles.dot} />
           </View>
 
-          <Input
-            label="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            maskType="email"
-            error={errors.email}
-          />
-
-          <Input
-            label="Senha"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            error={errors.password}
-          />
+          <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
+          <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
 
           <View style={styles.checkboxContainer}>
-              <Checkbox
-                label="Lembrar de mim"
-                value={rememberMe}
-                onValueChange={setRememberMe}
-              />
+              <Checkbox label="Lembrar de mim" value={rememberMe} onValueChange={setRememberMe} />
           </View>
 
-          <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
-          <Button
-            title="CRIAR CONTA"
-            variant="outlined"
-            onPress={() => navigation.navigate('RegisterScreen')}
-          />
+          {isLoading ? (
+            <ActivityIndicator size="large" color={COLORS.primaryLight} />
+          ) : (
+            <>
+                <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
+                <Button title="CRIAR CONTA" variant="outlined" onPress={() => navigation.navigate('RegisterScreen')} />
+            </>
+          )}
+
+          {showBiometricModal && <BiometricModal credentials={{ email, password }} />}
       </View>
     );
 }
