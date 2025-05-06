@@ -1,3 +1,4 @@
+// src/screens/ProfileScreen.tsx
 import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, Modal, Text, Switch, SafeAreaView } from 'react-native';
 import ActionCard from '../components/atoms/ActionCard';
@@ -6,13 +7,22 @@ import SimpleButton from '../components/atoms/SimpleButton';
 import FooterNav from '../components/atoms/FooterNav';
 import ActionModal from '../components/atoms/ActionModal';
 import carouselData from '../data/carouselData';
-import { WebView } from 'react-native-webview';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/types';
 
-export default function ProfileScreen() {
+
+type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
+
+
+export default function ProfileScreen({navigation}) {
+  //const navigation = useNavigation();
+
+
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isPrefsModalVisible, setIsPrefsModalVisible] = useState(false);
-  const [isTermsModalVisible, setIsTermsModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
 
   const modalConfigs = {
     '1': {
@@ -40,13 +50,16 @@ export default function ProfileScreen() {
     },
   };
 
+
   const handleCardPress = (id: string) => setSelectedActionId(id);
   const closeModal = () => setSelectedActionId(null);
   const config = selectedActionId ? modalConfigs[selectedActionId as keyof typeof modalConfigs] : null;
 
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#333' : '#f2f2f2' }]}>
       <ProfileInfo isDarkMode={isDarkMode} />
+
 
       <FlatList
         horizontal
@@ -63,30 +76,31 @@ export default function ProfileScreen() {
         )}
       />
 
+
       <View style={styles.buttons}>
-        <SimpleButton label="Preferências >" onPress={() => setIsPrefsModalVisible(true)} isDarkMode={isDarkMode} />
-        <SimpleButton label="Termos e regulamentos >" onPress={() => setIsTermsModalVisible(true)} isDarkMode={isDarkMode} />
+        <SimpleButton label="Preferências >" onPress={() => setIsModalVisible(true)} isDarkMode={isDarkMode} />
+        <SimpleButton
+          label="Termos e regulamentos >"
+          onPress={() => navigation.navigate('TermsScreen')}
+          isDarkMode={isDarkMode}
+        />
       </View>
+
 
       <FooterNav backgroundColor={isDarkMode ? '#000000' : '#f2f2f2'} />
 
-      <Modal visible={isPrefsModalVisible} animationType="slide" transparent={true}>
+
+      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Preferências</Text>
             <Text style={styles.modalLabel}>Modo Dark</Text>
             <Switch value={isDarkMode} onValueChange={() => setIsDarkMode(!isDarkMode)} />
-            <SimpleButton label="Fechar" onPress={() => setIsPrefsModalVisible(false)} />
+            <SimpleButton label="Fechar" onPress={() => setIsModalVisible(false)} />
           </View>
         </View>
       </Modal>
 
-      <Modal visible={isTermsModalVisible} animationType="slide">
-        <SafeAreaView style={{ flex: 1 }}>
-          <SimpleButton label="Fechar" onPress={() => setIsTermsModalVisible(false)} />
-          <WebView source={{ uri: 'https://sobreuol.noticias.uol.com.br/normas-de-seguranca-e-privacidade/en/' }} style={{ flex: 1 }} />
-        </SafeAreaView>
-      </Modal>
 
       {config && (
         <ActionModal
@@ -102,6 +116,7 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -136,6 +151,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+
 
 
 

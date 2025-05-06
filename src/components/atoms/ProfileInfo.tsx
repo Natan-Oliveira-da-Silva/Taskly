@@ -3,15 +3,18 @@ import { View, Text, StyleSheet } from 'react-native';
 
 interface Props {
   isDarkMode?: boolean;
+  name: string;
+  phone: string;
+  email: string;
 }
 
-export default function ProfileInfo({ isDarkMode = false }: Props) {
+export default function ProfileInfo({ isDarkMode = false, name, phone, email }: Props) {
   return (
     <View style={styles.profileContainer}>
       <View style={styles.avatarPlaceholder} />
-      <Text style={[styles.name, { color: isDarkMode ? '#fff' : '#000' }]}>Rafaela Santos</Text>
-      <Text style={[styles.email, { color: isDarkMode ? '#fff' : '#000' }]}>rafaela.santos@compasso.com.br</Text>
-      <Text style={[styles.phone, { color: isDarkMode ? '#fff' : '#000' }]}> (81) 98650 - 9240 </Text>
+      <Text style={[styles.name, { color: isDarkMode ? '#fff' : '#000' }]}>{name}</Text>
+      <Text style={[styles.email, { color: isDarkMode ? '#fff' : '#000' }]}>{email}</Text>
+      <Text style={[styles.phone, { color: isDarkMode ? '#fff' : '#000' }]}>{phone}</Text>
     </View>
   );
 }
@@ -43,4 +46,6 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
 });
+
+
 
