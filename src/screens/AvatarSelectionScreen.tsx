@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { COLORS } from '../utils/constants';
 import Button from '../components/atoms/Button';
+import { profileService } from '../domain/profile';
 
 const avatars = [
     require('../assets/avatars/avatar1.jpg'),
@@ -31,53 +32,50 @@ export default function AvatarSelectionScreen() {
             return;
         }
 
-        const success = await mockUpdateAvatar();
-        if (success) {
+        try {
+            const picture = `avatar_${selected + 1}`;
+            await profileService.updateProfileAvatar({ picture });
             navigation.navigate('HomeScreen');
-        } else {
-            Alert.alert('Erro ao salvar avatar');
+        } catch (error) {
+            Alert.alert('Erro', 'Erro ao salvar avatar. Tente novamente.');
         }
     };
 
-    const mockUpdateAvatar = async (): Promise<boolean> => {
-        return new Promise(resolve => setTimeout(() => resolve(true), 500));
-    };
-
     return (
-      <View style={styles.container}>
-          <Text style={styles.title}>SELECIONE UM AVATAR</Text>
-          <Text style={styles.subtitle}>(Escolha somente um)</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>SELECIONE UM AVATAR</Text>
+            <Text style={styles.subtitle}>(Escolha somente um)</Text>
 
-          <View style={styles.grid}>
-              <View style={styles.row}>
-                  {[0, 1, 2].map(index => renderAvatar(index))}
-              </View>
-              <View style={styles.row}>
-                  {[3, 4].map(index => renderAvatar(index))}
-              </View>
-          </View>
+            <View style={styles.grid}>
+                <View style={styles.row}>
+                    {[0, 1, 2].map(index => renderAvatar(index))}
+                </View>
+                <View style={styles.row}>
+                    {[3, 4].map(index => renderAvatar(index))}
+                </View>
+            </View>
 
-          <Button title="CONFIRMAR SELEÇÃO" variant="filled" onPress={handleConfirm} height={39} />
-      </View>
+            <Button title="CONFIRMAR SELEÇÃO" variant="filled" onPress={handleConfirm} height={39} />
+        </View>
     );
 
     function renderAvatar(index: number) {
         return (
-          <TouchableOpacity
-            key={index}
-            onPress={() => setSelected(index)}
-            style={[
-                styles.avatarWrapper,
-                { borderColor: borderColors[index] },
-                selected === index && styles.selected,
-            ]}
-          >
-              <Image source={avatars[index]} style={styles.avatar} />
-              <View style={[
-                  styles.overlay,
-                  selected === index && styles.overlaySelected
-              ]} />
-          </TouchableOpacity>
+            <TouchableOpacity
+                key={index}
+                onPress={() => setSelected(index)}
+                style={[
+                    styles.avatarWrapper,
+                    { borderColor: borderColors[index] },
+                    selected === index && styles.selected,
+                ]}
+            >
+                <Image source={avatars[index]} style={styles.avatar} />
+                <View style={[
+                    styles.overlay,
+                    selected === index && styles.overlaySelected
+                ]} />
+            </TouchableOpacity>
         );
     }
 }
@@ -117,8 +115,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'relative',
     },
-    selected: {
-    },
+    selected: {},
     avatar: {
         width: '100%',
         height: '100%',
