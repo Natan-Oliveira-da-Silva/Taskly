@@ -92,51 +92,7 @@ O app suporta **tema claro e escuro**, alternando conforme a preferência do usu
 
 ## ▶️ Como Rodar o Projeto
 
-### 📦 Pré-requisitos
 
-- Node.js (versão LTS)
-- Yarn ou npm
-- Java 11 (para builds Android)
-- Android Studio ou dispositivo físico
-- Xcode (somente para iOS, no macOS)
-- CocoaPods (para iOS)
-
-### 🚀 Passo a passo
-
-1. **Clone o repositório**
-   ```bash
-   git clone https://github.com/Natan-Oliveira-da-Silva/RN-Mar25-Mobile-Mavericks.git
-   cd RN-Mar25-Mobile-Mavericks
-   ```
-
-2. **Instale as dependências**
-   ```bash
-   yarn install
-   ```
-   ou
-
-   ```bash
-   npm install
-   ```
-
-3. **Instale os pods do iOS (apenas no macOS)**
-   ```bash
-   cd ios
-   pod install
-   cd ..
-   ```
-
-4. **Execute o app**
-
-   - **Android**
-     ```bash
-     npx react-native run-android
-     ```
-
-   - **iOS**
-     ```bash
-     npx react-native run-ios
-     ```
 
 ---
 
