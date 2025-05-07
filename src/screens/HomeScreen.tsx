@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS } from '../utils/constants';
 import Button from '../components/atoms/Button';
 import { useAuth } from '../context/AuthContext';
@@ -7,12 +8,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BiometricModal from './modal/BiometricModal';
 
 export default function HomeScreen() {
+    const navigation = useNavigation<any>();
     const { signOut } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null);
 
     useEffect(() => {
-        const checkBiometricPrompt = async () => {
+        const handleStartup = async () => {
+            const firstLogin = await AsyncStorage.getItem('firstLogin');
+
+            if (firstLogin === 'true') {
+                await AsyncStorage.removeItem('firstLogin');
+                navigation.replace('AvatarSelectionScreen');
+                return;
+            }
+
             const enabled = await AsyncStorage.getItem('biometricEnabled');
             const remember = await AsyncStorage.getItem('rememberMe');
             const creds = await AsyncStorage.getItem('biometricCredentials');
@@ -23,7 +33,7 @@ export default function HomeScreen() {
             }
         };
 
-        checkBiometricPrompt();
+        handleStartup();
     }, []);
 
     return (

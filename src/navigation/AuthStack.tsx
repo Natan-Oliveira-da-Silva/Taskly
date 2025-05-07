@@ -4,7 +4,6 @@ import { AuthStackParamList } from './types';
 import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
-import AvatarSelectionScreen from '../screens/AvatarSelectionScreen';
 
 const Stack = createStackNavigator<AuthStackParamList>();
 
@@ -14,7 +13,6 @@ export default function AuthStack() {
       <Stack.Screen name="SplashScreen" component={SplashScreen} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-      <Stack.Screen name="AvatarSelectionScreen" component={AvatarSelectionScreen} />
     </Stack.Navigator>
   );
 }

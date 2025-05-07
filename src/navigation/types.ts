@@ -16,11 +16,11 @@ export type AuthStackParamList = {
     LoginScreen: undefined;
     RegisterScreen: undefined;
     BiometricModal: undefined;
-    AvatarSelectionScreen: undefined;
   };
 
   export type TaskStackParamList = {
     HomeScreen: undefined;
     TaskDetail: undefined;
     SubTask: undefined;
+    AvatarSelectionScreen: undefined;
   };

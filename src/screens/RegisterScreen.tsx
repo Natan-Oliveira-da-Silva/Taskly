@@ -9,6 +9,7 @@ import {
     Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import { COLORS } from '../utils/constants';
@@ -78,12 +79,9 @@ export default function RegisterScreen() {
     };
 
     const handleRegister = async () => {
-        console.log('chamou register');
-
         if (!validateFields()) return;
 
         try {
-
             await authService.register({
                 email,
                 password,
@@ -91,10 +89,13 @@ export default function RegisterScreen() {
                 phone_number: phone,
             });
 
+            await AsyncStorage.setItem('firstLogin', 'true');
+            await AsyncStorage.setItem('rememberMe', 'true');
+            await AsyncStorage.setItem('biometricCredentials', JSON.stringify({ email, password }));
+
             navigation.navigate('LoginScreen', {
                 email,
                 password,
-                showBiometricModal: true,
             });
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível cadastrar. Tente novamente.');
@@ -102,25 +103,25 @@ export default function RegisterScreen() {
     };
 
     return (
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
-          >
-              <Text style={styles.title}>Cadastro</Text>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+            >
+                <Text style={styles.title}>Cadastro</Text>
 
-              <Input label="Nome completo" value={name} onChangeText={setName} error={errors.name} />
-              <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
-              <Input label="Celular" value={phone} onChangeText={setPhone} maskType="cel-phone" error={errors.phone} />
-              <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
-              <Input label="Confirmar senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry error={errors.confirmPassword} />
+                <Input label="Nome completo" value={name} onChangeText={setName} error={errors.name} />
+                <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
+                <Input label="Celular" value={phone} onChangeText={setPhone} maskType="cel-phone" error={errors.phone} />
+                <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
+                <Input label="Confirmar senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry error={errors.confirmPassword} />
 
-              <Button title="CRIAR CONTA" variant="filled" onPress={handleRegister} />
-          </ScrollView>
-      </KeyboardAvoidingView>
+                <Button title="CRIAR CONTA" variant="filled" onPress={handleRegister} />
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
