@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
 import { RootStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+import { TaskDetailRouteProp } from '../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -13,6 +15,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDetail'
 
 export default function TaskDetailScreen() {
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<TaskDetailRouteProp>();
+  const { task } = route.params;
   const [subtaskInputs, setSubtaskInputs] = useState<string[]>([]);
   const [confirmedSubtasks, setConfirmedSubtasks] = useState<{ text: string; checked: boolean }[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -55,6 +59,18 @@ export default function TaskDetailScreen() {
     setEditingIndex(index);
   };
 
+  function getPriorityStyle(priority: string) {
+    switch (priority) {
+      case 'ALTA':
+        return { backgroundColor: '#32C25B' };
+      case 'MEDIA':
+        return { backgroundColor: '#32C25B' };
+      case 'BAIXA':
+        return { backgroundColor: '#32C25B' };
+      default:
+        return { backgroundColor: '#32C25B' };
+    }
+  }
 
   return (
     <View style={styles.screen}>
@@ -62,29 +78,41 @@ export default function TaskDetailScreen() {
       <View style={styles.container}>
       <Header onBack={() => navigation.goBack()} />
         <View style={styles.card}>
-          <TouchableOpacity style={styles.editIcon} onPress={() => navigation.navigate('SubTask')}>
+        <TouchableOpacity
+          style={styles.editIcon}
+          onPress={() => navigation.navigate('EditTask', { task })}
+        >
           <Image source={require('../assets/avatars/Vector1.png')} />
+        </TouchableOpacity>
 
-          </TouchableOpacity>
           <Text style={styles.label1}>Título</Text>
-          <Text style={styles.value}>Bater o ponto</Text>
+          <Text style={styles.value}>{task.titulo}</Text>
 
           <Text style={styles.label}>Descrição</Text>
-          <Text style={styles.description}>
-            bater o ponto pelo site do kairos e depois tenho que sair para tomar café.
-          </Text>
+          <Text style={styles.description}>{task.descricao}</Text>
 
           <Text style={styles.label}>Tags</Text>
-          <View style={styles.chips}>
-            <View style={styles.chip}><Text style={styles.chipText}>TRABALHO</Text></View>
-            <View style={styles.chip}><Text style={styles.chipText}>LAZER</Text></View>
-            <View style={styles.chip}><Text style={styles.chipText}>COMPASS</Text></View>
-          </View>
+          {task.tags?.length > 0 ? (
+            <View style={styles.chips}>
+              {task.tags.map((tag, index) => (
+                <View key={index} style={styles.chip}>
+                  <Text style={styles.chipText}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.emptyInfoText}>Nenhuma tag adicionada</Text>
+          )}
+
 
           <Text style={styles.label}>Prioridade</Text>
-          <View style={styles.priorityChip}>
-            <Text style={styles.priorityChipText}>ALTA</Text>
-          </View>
+          {task.prioridade ? (
+            <View style={[styles.priorityChip, getPriorityStyle(task.prioridade)]}>
+              <Text style={styles.priorityChipText}>{task.prioridade.toUpperCase()}</Text>
+            </View>
+          ) : (
+            <Text style={styles.emptyInfoText}>Sem prioridade definida</Text>
+          )}
 
           <TouchableOpacity
             style={styles.resolveButton}
@@ -261,6 +289,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Roboto-Base',
     color: '#FFFFFF',
+  },
+  emptyInfoText: {
+    fontStyle: 'italic',
+    color: '#999',
   },
   resolveButton: {
     marginTop: 14,

@@ -56,6 +56,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: '#FFFFFF',
     paddingVertical: 8,
-    elevation: 8,
+    elevation: 1,
   },
 });
