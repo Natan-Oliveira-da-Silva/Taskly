@@ -92,7 +92,7 @@ O app suporta **tema claro e escuro**, alternando conforme a preferência do usu
 
 ## ▶️ Como Rodar o Projeto
 
-POR ORA, ESSE ESPAÇO ESTÁ VAZIO
+É NECESSÁRIO ADICIONAR INSTRUÇÕES DE COMO RODAR O PROJETO NESTE TÓPICO
 
 ---
 
