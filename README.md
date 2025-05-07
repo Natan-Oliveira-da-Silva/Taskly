@@ -1,97 +1,111 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📱 Taskly
 
-# Getting Started
+Aplicativo mobile para gestão de tarefas. Com o Taskly, o usuário pode organizar suas atividades, estabelecer prazos, definir prioridades e personalizar seu perfil. Este projeto foi desenvolvido como parte de um desafio proposto pelos instrutores da trilha de React Native e AWS do Programa de Bolsas da Compass.UOL.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## 📚 Sumário
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- [Arquitetura do Projeto](#-arquitetura-do-projeto)
+- [Estrutura de Pastas](#-estrutura-de-pastas)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Design e Temas](#-design-e-temas)
+- [Como Rodar o Projeto](#-como-rodar-o-projeto)
+- [Licença](#-licença)
+- [Desenvolvedores](#-desenvolvedores)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
-npm start
+## 🏗️ Arquitetura do Projeto
 
-# OR using Yarn
-yarn start
+A arquitetura foi planejada para garantir **clareza, escalabilidade e manutenibilidade**, com base em três pilares:
+
+- **Clean Code**: código limpo, legível e de fácil manutenção.
+- **Layer-Based Architecture**: separação entre camadas (componentes, navegação, telas, utilitários).
+- **Atomic Design**: componentes organizados em `atoms`, `molecules` e, futuramente, `organisms`.
+
+---
+
+## 📁 Estrutura de Pastas
+
+```text
+RN-MAR25-MOBILE-MAVERICKS/
+├── src/
+│   ├── assets/
+│   │   └── avatars/
+│   │       ├── avatar1.jpg
+│   │       ├── ellipse1.png
+│   │       ├── Vector.png
+│   │       └── Vector1.png
+│   ├── components/
+│   │   ├── atoms/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Checkbox.tsx
+│   │   │   └── Input.tsx
+│   │   └── molecules/
+│   │       ├── Header.tsx
+│   │       └── TabBar.tsx
+│   ├── navigation/
+│   │   ├── AppNavigator.tsx
+│   │   ├── AuthStack.tsx
+│   │   ├── TabNavigator.tsx
+│   │   ├── TaskStack.tsx
+│   │   └── types.ts
+│   ├── screens/
+│   │   ├── modal/
+│   │   │   └── BiometricModal.tsx
+│   │   ├── AvatarSelectionScreen.tsx
+│   │   ├── HomeScreen.tsx
+│   │   ├── LoginScreen.tsx
+│   │   ├── RegisterScreen.tsx
+│   │   ├── SplashScreen.tsx
+│   │   ├── SubTaskScreen.tsx
+│   │   └── TaskDetailScreen.tsx
+│   └── utils/
+│       ├── colors.ts
+│       ├── constants.ts
+│       └── typography.ts
+└── App.tsx
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## 🧰 Tecnologias Utilizadas
 
-### Android
+- **[React Native](https://reactnative.dev/)** — framework para desenvolvimento mobile.
+- **[TypeScript](https://www.typescriptlang.org/)** — tipagem estática.
+- **[React Navigation](https://reactnavigation.org/)** — navegação entre telas.
+- **[Axios](https://axios-http.com/)** — requisições HTTP.
+- **[AsyncStorage](https://react-native-async-storage.github.io/async-storage/)** — armazenamento local.
+- **[React Native Biometrics](https://github.com/SelfLender/react-native-biometrics)** — autenticação biométrica.
+- **[React Native Masked Text](https://github.com/benhurott/react-native-masked-text)** — máscaras para entradas do usuário.
 
-```sh
-# Using npm
-npm run android
+---
 
-# OR using Yarn
-yarn android
-```
+## 🎨 Design e Temas
 
-### iOS
+O layout segue o [Figma oficial](https://www.figma.com/design/4CRUTjHYX89xCfdUhFl8ft/Taskly-UI?node-id=0-1&t=jDE70ppySE29bZ7f-1), com padronização de cores, fontes e componentes reutilizáveis com base em Atomic Design.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+O app suporta **tema claro e escuro**, alternando conforme a preferência do usuário.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+---
 
-```sh
-bundle install
-```
+## ▶️ Como Rodar o Projeto
 
-Then, and every time you update your native dependencies, run:
+É NECESSÁRIO ADICIONAR INSTRUÇÕES DE COMO RODAR O PROJETO NESTE TÓPICO
 
-```sh
-bundle exec pod install
-```
+---
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 📝 Licença
 
-```sh
-# Using npm
-npm run ios
+Projeto privado, desenvolvido exclusivamente para fins educacionais e internos.
 
-# OR using Yarn
-yarn ios
-```
+---
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 👨‍💻 Desenvolvedores
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- [**Czarena Wealth Nana Afia Agyei**](https://github.com/wealthczarena)  
+- [**Jessica Woytuski**](https://github.com/Jessiwoy)  
+- [**João Vitor Iuncks**](https://github.com/Iuncks)  
+- [**Lorenzo Giuseppe Oliveira Baroni**](https://github.com/lorenzobaroni)  
+- [**Natan Oliveira da Silva**](https://github.com/Natan-Oliveira-da-Silva)
