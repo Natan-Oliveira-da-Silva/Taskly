@@ -1,5 +1,5 @@
 // src/screens/ProfileScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, FlatList, StyleSheet, Modal, Text, Switch, SafeAreaView } from 'react-native';
 import ActionCard from '../components/atoms/ActionCard';
 import ProfileInfo from '../components/atoms/ProfileInfo';
@@ -10,19 +10,20 @@ import carouselData from '../data/carouselData';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/types';
-
+import axios from 'axios';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
-
 export default function ProfileScreen() {
-  const navigation = useNavigation();
-
+  const navigation = useNavigation<NavigationProp>();
 
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
   const modalConfigs = {
     '1': {
@@ -50,16 +51,40 @@ export default function ProfileScreen() {
     },
   };
 
-
   const handleCardPress = (id: string) => setSelectedActionId(id);
   const closeModal = () => setSelectedActionId(null);
   const config = selectedActionId ? modalConfigs[selectedActionId as keyof typeof modalConfigs] : null;
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjNmOWEwNTBkYzRhZTgyOGMyODcxYzMyNTYzYzk5ZDUwMjc3ODRiZTUiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiSm9obiIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9wYi1jb21wYXNzLTIwMjUwMyIsImF1ZCI6InBiLWNvbXBhc3MtMjAyNTAzIiwiYXV0aF90aW1lIjoxNzQ2NjQ1MDA0LCJ1c2VyX2lkIjoibVBuYUUyalJBVldJSUJuSURkVlBTY0c2amRLMiIsInN1YiI6Im1QbmFFMmpSQVZXSUlCbklEZFZQU2NHNmpkSzIiLCJpYXQiOjE3NDY2NDUwMDQsImV4cCI6MTc0NjY0ODYwNCwiZW1haWwiOiJqb2huQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJqb2huQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.D8Z6SyCc3OjXg9OTsRQBU8RnSVsqyUUGvOTCU2gUECi6a_ldjuVe1fDmEPm9dPtHVjKIZ856YYv1xptlr_dr_luEBrUuvtmes_lCXLlANcfSrqJMdrFflHmqK4pb8giLkrJ9w5HeMR7oUGheS6iIDWHLiw7op4-ZYy44kwFEwnTwwLShJdqfhVcwMWVJJx0--_rzRFn3fWPtLwktrAC9XlgUamL6WkpPH9PVdlLfpLori9CM3S7JXWrxibaJr0OL9spDUsznjuGjVtP5Ot4pQIZhWYcZBgikDCJA-8hTVlvBKZid6dAsafSXPBzmfTXg0uJL7VVoCbsCnZIUlAKDvA';
+        const response = await axios.get('http://15.229.11.44:3000', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const { name, phone, email } = response.data;
+        setUserName(name);
+        setUserPhone(phone);
+        setUserEmail(email);
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#333' : '#f2f2f2' }]}>
-      <ProfileInfo isDarkMode={isDarkMode} />
-
+      <ProfileInfo
+        isDarkMode={isDarkMode}
+        name={userName}
+        phone={userPhone}
+        email={userEmail}
+      />
 
       <FlatList
         horizontal
@@ -76,7 +101,6 @@ export default function ProfileScreen() {
         )}
       />
 
-
       <View style={styles.buttons}>
         <SimpleButton label="Preferências >" onPress={() => setIsModalVisible(true)} isDarkMode={isDarkMode} />
         <SimpleButton
@@ -86,9 +110,7 @@ export default function ProfileScreen() {
         />
       </View>
 
-
       <FooterNav backgroundColor={isDarkMode ? '#000000' : '#f2f2f2'} />
-
 
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
@@ -100,7 +122,6 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-
 
       {config && (
         <ActionModal
@@ -116,7 +137,6 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -151,6 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
 
 
 
