@@ -35,7 +35,7 @@ export default function AvatarSelectionScreen() {
         try {
             const picture = `avatar_${selected + 1}`;
             await profileService.updateProfileAvatar({ picture });
-            navigation.navigate('HomeScreen');
+            navigation.navigate('AuthStack');
         } catch (error) {
             Alert.alert('Erro', 'Erro ao salvar avatar. Tente novamente.');
         }
