@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { View, StyleSheet, Text, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Input from '../components/atoms/Input';
@@ -21,6 +21,18 @@ export default function LoginScreen() {
     const [errors, setErrors] = useState({ email: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
     const [showBiometricModal, setShowBiometricModal] = useState(false);
+
+
+    const handleSignIn = useCallback(
+        async (email: string, password: string) => {
+            try {
+                await auth.signIn(email, password);
+            } catch {
+                Alert.alert('Erro', 'E-mail ou senha inválidos.');
+            }
+        },
+        [auth] // depende apenas de auth
+    );
 
     useEffect(() => {
         if (route.params?.email) setEmail(route.params.email);
@@ -49,7 +61,7 @@ export default function LoginScreen() {
         };
 
         tryBiometricLogin();
-    }, [navigation]);
+    }, [handleSignIn, navigation]);
 
     const validateFields = () => {
         const newErrors = { email: '', password: '' };
@@ -70,14 +82,6 @@ export default function LoginScreen() {
 
         setErrors(newErrors);
         return isValid;
-    };
-
-    const handleSignIn = async (email: string, password: string) => {
-        try {
-            await auth.signIn(email, password);
-        } catch {
-            Alert.alert('Erro', 'E-mail ou senha inválidos.');
-        }
     };
 
     const handleLogin = async () => {
