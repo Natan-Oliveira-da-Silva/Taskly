@@ -7,7 +7,6 @@ import Checkbox from '../components/atoms/Checkbox';
 import { COLORS } from '../utils/constants';
 import { useAuth } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import BiometricModal from './modal/BiometricModal.tsx';
 import ReactNativeBiometrics from 'react-native-biometrics';
 
 export default function LoginScreen() {
@@ -20,8 +19,6 @@ export default function LoginScreen() {
     const [rememberMe, setRememberMe] = useState(false);
     const [errors, setErrors] = useState({ email: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
-    const [showBiometricModal, setShowBiometricModal] = useState(false);
-
 
     const handleSignIn = useCallback(
         async (email: string, password: string) => {
@@ -31,7 +28,7 @@ export default function LoginScreen() {
                 Alert.alert('Erro', 'E-mail ou senha inválidos.');
             }
         },
-        [auth] // depende apenas de auth
+        [auth]
     );
 
     useEffect(() => {
@@ -61,7 +58,7 @@ export default function LoginScreen() {
         };
 
         tryBiometricLogin();
-    }, [handleSignIn, navigation]);
+    }, [handleSignIn]);
 
     const validateFields = () => {
         const newErrors = { email: '', password: '' };
@@ -90,13 +87,13 @@ export default function LoginScreen() {
         setIsLoading(true);
         try {
             await handleSignIn(email, password);
-            if (rememberMe) {
-                await AsyncStorage.setItem('biometricCredentials', JSON.stringify({ email, password }));
-            }
             await AsyncStorage.setItem('lastLogin', JSON.stringify({ email, password }));
 
-            if (route.params?.showBiometricModal) {
-                setShowBiometricModal(true);
+            if (rememberMe) {
+                await AsyncStorage.setItem('rememberMe', 'true');
+                await AsyncStorage.setItem('biometricCredentials', JSON.stringify({ email, password }));
+            } else {
+                await AsyncStorage.removeItem('rememberMe');
             }
         } finally {
             setIsLoading(false);
@@ -104,30 +101,28 @@ export default function LoginScreen() {
     };
 
     return (
-      <View style={styles.container}>
-          <View style={styles.logoWrapper}>
-              <Text style={styles.logoText}>TASKLY</Text>
-              <View style={styles.dot} />
-          </View>
+        <View style={styles.container}>
+            <View style={styles.logoWrapper}>
+                <Text style={styles.logoText}>TASKLY</Text>
+                <View style={styles.dot} />
+            </View>
 
-          <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
-          <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
+            <Input label="E-mail" value={email} onChangeText={setEmail} maskType="email" error={errors.email} />
+            <Input label="Senha" value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
 
-          <View style={styles.checkboxContainer}>
-              <Checkbox label="Lembrar de mim" value={rememberMe} onValueChange={setRememberMe} />
-          </View>
+            <View style={styles.checkboxContainer}>
+                <Checkbox label="Lembrar de mim" value={rememberMe} onValueChange={setRememberMe} />
+            </View>
 
-          {isLoading ? (
-            <ActivityIndicator size="large" color={COLORS.primaryLight} />
-          ) : (
-            <>
-                <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
-                <Button title="CRIAR CONTA" variant="outlined" onPress={() => navigation.navigate('RegisterScreen')} />
-            </>
-          )}
-
-          {showBiometricModal && <BiometricModal credentials={{ email, password }} />}
-      </View>
+            {isLoading ? (
+                <ActivityIndicator size="large" color={COLORS.primaryLight} />
+            ) : (
+                <>
+                    <Button title="ENTRAR" variant="filled" onPress={handleLogin} />
+                    <Button title="CRIAR CONTA" variant="outlined" onPress={() => navigation.navigate('RegisterScreen')} />
+                </>
+            )}
+        </View>
     );
 }
 
