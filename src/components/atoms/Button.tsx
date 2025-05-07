@@ -7,18 +7,20 @@ type Props = {
     variant?: 'filled' | 'outlined' | 'green' | 'danger';
     onPress: () => void;
     height?: number;
-    style?: ViewStyle; // ✅ nova prop opcional
+    width?: number; // ✅ nova prop opcional
+    style?: ViewStyle;
 };
 
-export default function Button({ title, variant = 'filled', onPress, height = 47, style }: Props) {
+export default function Button({ title, variant = 'filled', onPress, height = 47, width, style }: Props) {
     const buttonStyle: ViewStyle[] = [
         styles.base,
         { height },
+        width ? { width } : {}, // ✅ aplica largura se definida
         variant === 'filled' && styles.filled,
         variant === 'outlined' && styles.outlined,
         variant === 'green' && styles.green,
         variant === 'danger' && styles.danger,
-        style, // ✅ sobrescreve ou ajusta dinamicamente
+        style,
     ].filter(Boolean) as ViewStyle[];
 
     const textStyle = [
@@ -27,15 +29,15 @@ export default function Button({ title, variant = 'filled', onPress, height = 47
     ];
 
     return (
-      <TouchableOpacity style={buttonStyle} onPress={onPress}>
-          <Text style={textStyle}>{title}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={buttonStyle} onPress={onPress}>
+            <Text style={textStyle}>{title}</Text>
+        </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
     base: {
-        width: 329,
+        width: 329, // padrão, sobrescrito se width for passado
         borderRadius: 8,
         paddingHorizontal: 16,
         justifyContent: 'center',

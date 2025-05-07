@@ -1,34 +1,63 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert, Modal } from 'react-native';
 import Button from '../../components/atoms/Button';
 import { COLORS } from '../../utils/constants';
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
-export default function BiometricModal() {
-    const navigation = useNavigation<any>();
+type BiometricModalProps = {
+    visible: boolean;
+    credentials: {
+        email: string;
+        password: string;
+    };
+    onClose: () => void;
+};
 
-    const handleConfirm = () => {
-        navigation.navigate('AvatarSelectionScreen');
+export default function BiometricModal({ visible, credentials, onClose }: BiometricModalProps) {
+    const handleConfirm = async () => {
+        const rnBiometrics = new ReactNativeBiometrics();
+        const { available } = await rnBiometrics.isSensorAvailable();
+
+        if (!available) {
+            Alert.alert('Biometria indisponível', 'Seu dispositivo não suporta biometria ou não há nenhuma digital cadastrada.');
+            return onClose();
+        }
+
+        const { success } = await rnBiometrics.simplePrompt({
+            promptMessage: 'Confirme sua digital para ativar o login por biometria',
+            fallbackPromptMessage: 'Usar senha',
+        });
+
+        if (success) {
+            await AsyncStorage.setItem('biometricEnabled', 'true');
+            await AsyncStorage.setItem('biometricCredentials', JSON.stringify(credentials));
+        } else {
+            Alert.alert('Erro', 'Não foi possível ativar a biometria.');
+        }
+
+        onClose();
     };
 
     const handleSkip = () => {
-        navigation.navigate('AvatarSelectionScreen');
+        onClose();
     };
 
     return (
-      <View style={styles.overlay}>
-          <View style={styles.card}>
-              <Text style={styles.title}>Ative desbloqueio por Biometria</Text>
-              <Text style={styles.description}>
-                  Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
-              </Text>
-
-              <View style={styles.buttonRow}>
-                  <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} />
-                  <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} />
-              </View>
-          </View>
-      </View>
+        <Modal transparent visible={visible} animationType="fade">
+            <View style={styles.overlay}>
+                <View style={styles.card}>
+                    <Text style={styles.title}>Ative desbloqueio por Biometria</Text>
+                    <Text style={styles.description}>
+                        Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
+                    </Text>
+                    <View style={styles.buttonRow}>
+                        <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} width={140} />
+                        <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} width={140} />
+                    </View>
+                </View>
+            </View>
+        </Modal>
     );
 }
 
