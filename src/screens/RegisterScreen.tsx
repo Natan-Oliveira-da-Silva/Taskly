@@ -3,15 +3,16 @@ import {
     View,
     Text,
     StyleSheet,
-    Modal,
     KeyboardAvoidingView,
     ScrollView,
     Platform,
+    Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import { COLORS } from '../utils/constants';
+import { authService } from '../domain/auth';
 
 export default function RegisterScreen() {
     const navigation = useNavigation<any>();
@@ -21,7 +22,6 @@ export default function RegisterScreen() {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [showModal, setShowModal] = useState(false);
 
     const [errors, setErrors] = useState({
         name: '',
@@ -77,20 +77,28 @@ export default function RegisterScreen() {
         return isValid;
     };
 
-    const handleRegister = () => {
-        if (validateFields()) {
-            setShowModal(true); // ativa o modal
+    const handleRegister = async () => {
+        console.log('chamou register');
+
+        if (!validateFields()) return;
+
+        try {
+
+            await authService.register({
+                email,
+                password,
+                name,
+                phone_number: phone,
+            });
+
+            navigation.navigate('LoginScreen', {
+                email,
+                password,
+                showBiometricModal: true,
+            });
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível cadastrar. Tente novamente.');
         }
-    };
-
-    const handleSkip = () => {
-        setShowModal(false);
-        navigation.navigate('AvatarSelectionScreen');
-    };
-
-    const handleConfirm = () => {
-        setShowModal(false);
-        navigation.navigate('AvatarSelectionScreen');
     };
 
     return (
@@ -111,22 +119,6 @@ export default function RegisterScreen() {
               <Input label="Confirmar senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry error={errors.confirmPassword} />
 
               <Button title="CRIAR CONTA" variant="filled" onPress={handleRegister} />
-
-              <Modal visible={showModal} transparent animationType="fade">
-                  <View style={styles.overlay}>
-                      <View style={styles.card}>
-                          <Text style={styles.modalTitle}>Ative desbloqueio por Biometria</Text>
-                          <Text style={styles.modalDescription}>
-                              Use sua impressão digital para acessar seu app de tarefas com rapidez e segurança. Se preferir, você ainda poderá usar a senha sempre que quiser.
-                          </Text>
-
-                          <View style={styles.buttonRow}>
-                              <Button title="AGORA NÃO" variant="outlined" onPress={handleSkip} height={39} style={{ width: '48%' }} />
-                              <Button title="ATIVAR" variant="filled" onPress={handleConfirm} height={39} style={{ width: '48%' }} />
-                          </View>
-                      </View>
-                  </View>
-              </Modal>
           </ScrollView>
       </KeyboardAvoidingView>
     );
@@ -149,39 +141,5 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: COLORS.mainText,
         marginBottom: 24,
-    },
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 24,
-    },
-    card: {
-        width: '100%',
-        backgroundColor: COLORS.background,
-        borderRadius: 12,
-        padding: 24,
-        alignItems: 'flex-start',
-    },
-    modalTitle: {
-        fontFamily: 'Roboto',
-        fontWeight: '700',
-        fontSize: 20,
-        color: COLORS.mainText,
-        marginBottom: 12,
-    },
-    modalDescription: {
-        fontFamily: 'Roboto',
-        fontSize: 15,
-        color: COLORS.secondaryText,
-        marginBottom: 24,
-        textAlign: 'left',
-    },
-    buttonRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        gap: 12,
     },
 });

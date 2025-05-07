@@ -1,14 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import Button from '../../components/atoms/Button';
 import { COLORS } from '../../utils/constants';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
-export default function BiometricModal() {
+type BiometricModalProps = {
+    credentials: {
+        email: string;
+        password: string;
+    };
+};
+
+export default function BiometricModal({ credentials }: BiometricModalProps) {
     const navigation = useNavigation<any>();
 
-    const handleConfirm = () => {
-        navigation.navigate('AvatarSelectionScreen');
+    const handleConfirm = async () => {
+        const rnBiometrics = new ReactNativeBiometrics();
+        const { available } = await rnBiometrics.isSensorAvailable();
+
+        if (!available) {
+            Alert.alert('Biometria indisponível', 'Seu dispositivo não suporta biometria ou não há nenhuma digital cadastrada.');
+            return navigation.navigate('AvatarSelectionScreen');
+        }
+
+        const { success } = await rnBiometrics.simplePrompt({
+            promptMessage: 'Confirme sua digital para ativar o login por biometria',
+            fallbackPromptMessage: 'Usar senha',
+        });
+
+        if (success) {
+            await AsyncStorage.setItem('biometricEnabled', 'true');
+            await AsyncStorage.setItem('biometricCredentials', JSON.stringify(credentials));
+            navigation.navigate('AvatarSelectionScreen');
+        } else {
+            Alert.alert('Erro', 'Não foi possível ativar a biometria.');
+        }
     };
 
     const handleSkip = () => {
