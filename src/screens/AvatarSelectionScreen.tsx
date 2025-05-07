@@ -28,56 +28,51 @@ export default function AvatarSelectionScreen() {
 
     const handleConfirm = async () => {
         if (selected === null) {
-            Alert.alert('Selecione um avatar');
+            Alert.alert('Aviso', 'Selecione um avatar antes de confirmar.');
             return;
         }
 
         try {
-            const picture = `avatar_${selected + 1}`;
-            await profileService.updateProfileAvatar({ picture });
-            navigation.navigate('AuthStack');
-        } catch (error) {
-            Alert.alert('Erro', 'Erro ao salvar avatar. Tente novamente.');
+            await profileService.updateProfileAvatar({
+                picture: `avatar_${selected + 1}`,
+            });
+
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'HomeScreen' }],
+            });
+        } catch {
+            Alert.alert('Erro', 'Não foi possível atualizar o avatar.');
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>SELECIONE UM AVATAR</Text>
-            <Text style={styles.subtitle}>(Escolha somente um)</Text>
-
-            <View style={styles.grid}>
-                <View style={styles.row}>
-                    {[0, 1, 2].map(index => renderAvatar(index))}
-                </View>
-                <View style={styles.row}>
-                    {[3, 4].map(index => renderAvatar(index))}
-                </View>
+            <Text style={styles.title}>Escolha seu avatar</Text>
+            <View style={styles.avatarContainer}>
+                {avatars.map((avatar, index) => (
+                    <TouchableOpacity
+                        key={index}
+                        onPress={() => setSelected(index)}
+                        style={[
+                            styles.avatarWrapper,
+                            {
+                                borderColor: selected === index ? borderColors[index] : 'transparent',
+                                borderWidth: 3,
+                            },
+                        ]}
+                    >
+                        <Image source={avatar} style={styles.avatarImage} />
+                    </TouchableOpacity>
+                ))}
             </View>
-
-            <Button title="CONFIRMAR SELEÇÃO" variant="filled" onPress={handleConfirm} height={39} />
+            <Button
+                title="CONFIRMAR"
+                variant="filled"
+                onPress={handleConfirm}
+            />
         </View>
     );
-
-    function renderAvatar(index: number) {
-        return (
-            <TouchableOpacity
-                key={index}
-                onPress={() => setSelected(index)}
-                style={[
-                    styles.avatarWrapper,
-                    { borderColor: borderColors[index] },
-                    selected === index && styles.selected,
-                ]}
-            >
-                <Image source={avatars[index]} style={styles.avatar} />
-                <View style={[
-                    styles.overlay,
-                    selected === index && styles.overlaySelected
-                ]} />
-            </TouchableOpacity>
-        );
-    }
 }
 
 const styles = StyleSheet.create({
@@ -85,47 +80,30 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.background,
         alignItems: 'center',
-        paddingTop: 64,
+        justifyContent: 'center',
+        padding: 24,
     },
     title: {
-        fontSize: 20,
-        fontWeight: '700',
+        fontSize: 24,
+        fontWeight: 'bold',
         color: COLORS.mainText,
+        marginBottom: 20,
     },
-    subtitle: {
-        fontSize: 14,
-        color: COLORS.secondaryText,
-        marginBottom: 24,
-    },
-    grid: {
-        marginBottom: 32,
-        gap: 8,
-    },
-    row: {
+    avatarContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         justifyContent: 'center',
-        gap: 8,
-        marginBottom: 8,
+        gap: 12,
+        marginBottom: 20,
     },
     avatarWrapper: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
-        borderWidth: 3,
+        borderRadius: 100,
         overflow: 'hidden',
-        position: 'relative',
+        margin: 8,
     },
-    selected: {},
-    avatar: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 48,
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-    },
-    overlaySelected: {
-        backgroundColor: 'rgba(0,0,0,0.1)',
+    avatarImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
     },
 });
