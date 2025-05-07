@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { RootStackParamList } from '../navigation/types';
+import { useRoute } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Task } from '../navigation/types';
 
 import Header from '../components/molecules/Header';
 import TabBar from '../components/molecules/TabBar';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDetail'>;
-
+type EditTaskRouteProp = RouteProp<RootStackParamList, 'EditTask'>;
 
 function removeEmojis(text: string) {
   return text.replace(
@@ -41,14 +44,18 @@ function isValidDate(dateStr: string): boolean {
   );
 }
 
-export default function SubTaskScreen() {
+export default function EditTaskScreen() {
+  const route = useRoute<EditTaskRouteProp>();
+  const { task } = route.params;
   const navigation = useNavigation<NavigationProp>();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(task.titulo);
+  const [description, setDescription] = useState(task.descricao);
   const [tagInput, setTagInput] = useState('');
-  const [tagsList, setTagsList] = useState<string[]>([]);
-  const [selectedPriority, setSelectedPriority] = useState<'ALTA' | 'MEDIA' | 'BAIXA' | ''>('');
-  const [dueDate, setDueDate] = useState('');
+  const [tagsList, setTagsList] = useState<string[]>(task.tags || []);
+  const [selectedPriority, setSelectedPriority] = useState<'ALTA' | 'MEDIA' | 'BAIXA' | ''>(
+    (task.prioridade as 'ALTA' | 'MEDIA' | 'BAIXA') || ''
+  );
+  const [dueDate, setDueDate] = useState(task.prazo || '');
   const [dateError, setDateError] = useState('');
 
 
@@ -63,6 +70,20 @@ export default function SubTaskScreen() {
   const handleRemoveTag = (tagToRemove: string) => {
     setTagsList(tagsList.filter(tag => tag !== tagToRemove));
   };
+
+  const handleConfirmEdit = () => {
+    const updatedTask: Task = {
+      ...task,
+      titulo: title,
+      descricao: description,
+      tags: tagsList,
+      prioridade: selectedPriority,
+      prazo: dueDate,
+    };
+
+    navigation.navigate('TaskDetail', { task: updatedTask });
+  };
+
 
   return (
     <View style={styles.viewOne}>
@@ -166,16 +187,18 @@ export default function SubTaskScreen() {
               <View style={styles.buttontouch}>
                 <TouchableOpacity
                 style={styles.subtaskButton1}
-                onPress={() => navigation.navigate('SubTask')}
+                onPress={() => navigation.navigate('TaskDetail', { task })
+              }
                 >
                 <Text style={styles.subtaskButtonText1}>CANCELAR</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                style={styles.subtaskButton2}
-                onPress={() => navigation.navigate('SubTask')}
+                  style={styles.subtaskButton2}
+                  onPress={handleConfirmEdit}
                 >
-                <Text style={styles.subtaskButtonText2}>CONFIRMAR</Text>
+                  <Text style={styles.subtaskButtonText2}>CONFIRMAR</Text>
                 </TouchableOpacity>
+
               </View>
             </View>
           </View>
