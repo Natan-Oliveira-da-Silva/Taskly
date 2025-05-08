@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import React, {  useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import TabBar from '../components/molecules/TabBar';
 import CreateTaskModal from './modal/CreateTaskModal';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { storage } from '../utils/storage';
 
 type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
 
 export interface Task {
     id: string;
-    titulo: string;
-    descricao: string;
+    title: string;
+    description: string;
     tags: string[];
+    done: boolean;
+    createdAt: string;
     status: 'pendente' | 'concluida';
     prioridade?: string;
     prazo: string;
@@ -26,25 +29,106 @@ export default function HomePage() {
     const [descricao, setDescricao] = useState('');
     const [prazo, setPrazo] = useState('');
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [profile, setProfile] = useState<{ picture: string } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleCreate = () => {
-        const novaTask: Task = {
-          id: Date.now().toString(),
-          titulo,
-          descricao,
-          tags: [], // ← deixamos vazio por enquanto
-          status: 'pendente',
-          prazo,
-        };
+    useEffect(() => {
+        loadTasksFromAPI();
+    }, []);
 
-        setTasks((prev) => [...prev, novaTask]);
+    useEffect(() => {
+        loadUserProfile();
+      }, []);
 
-        // Limpa e fecha o modal
+    const loadUserProfile = async () => {
+        try {
+          const token = await storage.getToken();
+          if (!token) return;
+
+          const response = await fetch('http://15.229.11.44:3000/profile', {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          });
+
+          const data = await response.json();
+          setProfile(data);
+        } catch (error) {
+          console.error('Erro ao carregar o perfil:', error);
+        }
+      };
+
+      const avatarMap: Record<string, any> = {
+        avatar_1: require('../assets/avatars/avatar1.png'),
+        avatar_2: require('../assets/avatars/avatar2.png'),
+        avatar_3: require('../assets/avatars/avatar3.png'),
+        avatar_4: require('../assets/avatars/avatar4.png'),
+        avatar_5: require('../assets/avatars/avatar5.png'),
+      };
+
+    const loadTasksFromAPI = async () => {
+        setIsLoading(true); // Início do carregamento
+        try {
+            const token = await storage.getToken();
+            if (!token) return;
+
+            const response = await fetch('http://15.229.11.44:3000/tasks', {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+            });
+
+            const data = await response.json();
+            setTasks(data);
+        } catch (error) {
+            console.error('Erro ao buscar tarefas da API:', error);
+        } finally {
+            setIsLoading(false); // Fim do carregamento
+        }
+    };
+
+    const sendTaskToAPI = async (title: string, description: string) => {
+        try {
+          const token = await storage.getToken();
+          if (!token) throw new Error('Token não encontrado');
+
+          const response = await fetch('http://15.229.11.44:3000/tasks', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token,
+            },
+            body: JSON.stringify({
+              title,
+              description,
+              done: false,
+            }),
+          });
+
+          if (!response.ok) throw new Error('Erro ao criar tarefa na API');
+
+          await loadTasksFromAPI();
+
+        } catch (error) {
+
+          console.error(error);
+        }
+      };
+
+      const handleCreate = async () => {
+        if (!titulo || !descricao) {
+          Alert.alert('Preencha todos os campos obrigatórios');
+          return;
+        }
+
+        await sendTaskToAPI(titulo, descricao);
+
         setTitulo('');
         setDescricao('');
         setPrazo('');
         setModalVisible(false);
     };
+
 
     const toggleStatus = (id: string) => {
         setTasks((prev) =>
@@ -63,7 +147,7 @@ export default function HomePage() {
         <View style={styles.cardTask}>
             {/* Título e status no topo */}
             <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.titulo}</Text>
+                <Text style={styles.cardTitle}>{item.title}</Text>
 
                 {/* Checkbox redondo */}
                 <TouchableOpacity
@@ -79,16 +163,16 @@ export default function HomePage() {
             </View>
 
             {/* Descrição logo abaixo */}
-            <Text style={styles.cardDescription}>{item.descricao}</Text>
+            <Text style={styles.cardDescription}>{item.description}</Text>
 
-            {/* Tags (vazio por enquanto) */}
-            {item.tags.length > 0 && (
+            {/* Tags */}
+            {item.tags?.length > 0 && (
                 <View style={styles.tagsContainer}>
-                {item.tags.map((tag) => (
-                    <View key={tag} style={styles.tag}>
-                    <Text style={styles.tagText}>{tag}</Text>
+                    {item.tags.map((tag, index) => (
+                    <View key={index} style={styles.tag}>
+                        <Text style={styles.tagText}>{tag}</Text>
                     </View>
-                ))}
+                    ))}
                 </View>
             )}
 
@@ -108,63 +192,79 @@ export default function HomePage() {
     );
 
     return (
-        <View style={styles.screen}>
-
-            <View style={styles.container}>
-                    {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>TASKLY</Text>
-                    <Avatar.Image size={45} source={require('./../assets/avatars/ellipse1.png')} />
-                </View>
-                <TouchableOpacity style={styles.filtro}><Image source={require('../assets/avatars/filtro.png')} /></TouchableOpacity>
-                {tasks.length === 0 ? (
-                    <View style={styles.card}>
-                        <Image source={require('../assets/avatars/sad.png')} />
-                        <Text style={styles.label}>No momento você não possui tarefa</Text>
-                        <TouchableOpacity
-                            style={styles.buttonEmptyState}
-                            onPress={() => setModalVisible(true)}
-                        >
-                            <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
-                        </TouchableOpacity>
-                    </View>
-                ) : (
-                    <FlatList
-                        data={tasks}
-                        keyExtractor={(item) => item.id}
-                        renderItem={renderTask}
-                        contentContainerStyle={styles.taskList}
-                        showsVerticalScrollIndicator={false}
-                    />
-                )}
-            </View>
-            {tasks.length !== 0 && (
-                <TouchableOpacity
-                    style={styles.buttonFloating}
-                    onPress={() => setModalVisible(true)}
-                >
-                    <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
-                </TouchableOpacity>
-            )}
-            {/* Modal */}
-            <CreateTaskModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                titulo={titulo}
-                descricao={descricao}
-                prazo={prazo}
-                onChangeTitulo={setTitulo}
-                onChangeDescricao={setDescricao}
-                onChangePrazo={setPrazo}
-                onSubmit={handleCreate}
-            />
-            {/* Barra de Navegação Inferior */}
-            <TabBar
-                onClipboardPress={() => console.log('Clipboard')}
-                onBellPress={() => console.log('Bell')}
-                onMenuPress={() => console.log('Menu')}
+    <View style={styles.screen}>
+        <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+            <Text style={styles.title}>TASKLY</Text>
+            <Avatar.Image
+            size={45}
+            source={
+                profile?.picture
+                ? avatarMap[profile.picture]
+                : require('../assets/avatars/ellipse1.png')
+            }
             />
         </View>
+
+        <TouchableOpacity style={styles.filtro}>
+            <Image source={require('../assets/avatars/filtro.png')} />
+        </TouchableOpacity>
+
+        {isLoading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#583CC4" />
+            </View>
+        ) : tasks.length === 0 ? (
+            <View style={styles.card}>
+            <Image source={require('../assets/avatars/sad.png')} />
+            <Text style={styles.label}>No momento você não possui tarefa</Text>
+            <TouchableOpacity
+                style={styles.buttonEmptyState}
+                onPress={() => setModalVisible(true)}
+            >
+                <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
+            </TouchableOpacity>
+            </View>
+        ) : (
+            <FlatList
+            data={tasks}
+            keyExtractor={(item) => item.id}
+            renderItem={renderTask}
+            contentContainerStyle={styles.taskList}
+            showsVerticalScrollIndicator={false}
+            />
+        )}
+    </View>
+        {!isLoading && tasks.length !== 0 && (
+        <TouchableOpacity
+            style={styles.buttonFloating}
+            onPress={() => setModalVisible(true)}
+        >
+            <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
+        </TouchableOpacity>
+        )}
+
+        {/* Modal */}
+        <CreateTaskModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        titulo={titulo}
+        descricao={descricao}
+        prazo={prazo}
+        onChangeTitulo={setTitulo}
+        onChangeDescricao={setDescricao}
+        onChangePrazo={setPrazo}
+        onSubmit={handleCreate}
+        />
+
+        {/* Barra de Navegação Inferior */}
+        <TabBar
+        onClipboardPress={() => console.log('Clipboard')}
+        onBellPress={() => console.log('Bell')}
+        onMenuPress={() => console.log('Menu')}
+        />
+    </View>
     );
 }
 
