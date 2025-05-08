@@ -1,24 +1,23 @@
-// src/contexts/ThemeContext.tsx
+// src/context/ThemeContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
+type ThemeType = 'light' | 'dark';
 
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
+interface ThemeContextProps {
+  theme: ThemeType;
+  isDarkMode: boolean;
+  setTheme: (theme: ThemeType) => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<ThemeType>('light');
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+  const isDarkMode = theme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, isDarkMode, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -31,5 +30,6 @@ export const useTheme = () => {
   }
   return context;
 };
+
 
 

@@ -12,7 +12,7 @@ export default function SimpleButton({ label, onPress, isDarkMode = false }: Pro
     <TouchableOpacity
       style={[
         styles.button,
-        { backgroundColor: isDarkMode ? '#1E1E1E' : '#fff' },
+        { backgroundColor: isDarkMode ? '#000000' : '#fff' },
       ]}
       onPress={onPress}
     >
@@ -35,5 +35,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
 
 

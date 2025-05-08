@@ -4,19 +4,20 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
+import { useTheme } from '../../context/ThemeContext';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface FooterNavProps {
-  backgroundColor?: string;
-}
-
-export default function FooterNav({ backgroundColor = '#ffffff' }: FooterNavProps) {
+export default function FooterNav() {
   const navigation = useNavigation<NavigationProp>();
+  const { isDarkMode } = useTheme();
+
+
+  const backgroundColor = isDarkMode ? '#000000' : '#fff';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor }]}>
         <TouchableOpacity>
           <Icon name="clipboard-text-outline" size={28} color="#5B3CC4" />
         </TouchableOpacity>
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: 20, // Garante espaço embaixo
+    paddingBottom: 20,
   },
   container: {
     flex: 1,
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
 });
+
 
 
 

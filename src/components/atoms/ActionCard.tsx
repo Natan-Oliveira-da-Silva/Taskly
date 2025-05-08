@@ -14,11 +14,11 @@ export default function ActionCard({ label, icon, onPress, isDarkMode = false }:
     <TouchableOpacity
       style={[
         styles.card,
-        { backgroundColor: isDarkMode ? '#1E1E1E' : '#fff' },
+        { backgroundColor: isDarkMode ? '#000000' : '#fff' },
       ]}
       onPress={onPress}
     >
-      <Text style={[styles.cardLabel, { color: isDarkMode ? '#fff' : '#1E1E1E' }]}>
+      <Text style={[styles.cardLabel, { color: isDarkMode ? '#fff' : '#000000' }]}>
         {label}
       </Text>
       <Icon name={icon} size={28} color={isDarkMode ? '#fff' : '#444'} />

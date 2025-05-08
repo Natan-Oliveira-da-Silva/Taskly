@@ -1,25 +1,23 @@
+// PreferencesScreen.tsx
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  Image,
-  useColorScheme,
-} from 'react-native';
-
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Image } from 'react-native';
 import FooterNav from '../components/atoms/FooterNav';
 import SimpleButton from '../components/atoms/SimpleButton';
+import { useTheme } from '../context/ThemeContext';
 
 export default function PreferencesScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode, setTheme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: isDarkMode ? '#1e1e1e' : '#f2f2f2' }]}>
-      <Text style={[styles.title, { color: isDarkMode ? '#fff' : '#000' }]}>Preferências</Text>
+      <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Text style={[styles.backText, { color: isDarkMode ? '#fff' : '#000' }]}>‹  VOLTAR</Text>
+      </TouchableOpacity>
+        <Text style={[styles.title, { color: isDarkMode ? '#fff' : '#000' }]}>Preferências</Text>
+        <View style={{ width: 80 }} />
+      </View>
 
       <SimpleButton
         label="Escolher Tema"
@@ -33,25 +31,16 @@ export default function PreferencesScreen({ navigation }) {
             <Text style={styles.modalTitle}>Escolha o tema</Text>
 
             <View style={styles.imageRow}>
-              <TouchableOpacity onPress={() => {/* tema escuro */}}>
-                <Image
-                  source={require('../assets/avatars/moon.png')}
-                  style={styles.image}
-                />
+              <TouchableOpacity onPress={() => { setTheme('dark'); setModalVisible(false); }}>
+                <Image source={require('../assets/avatars/moon.png')} style={styles.image} />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => {/* tema claro */}}>
-                <Image
-                  source={require('../assets/avatars/sun.png')}
-                  style={styles.image}
-                />
+              <TouchableOpacity onPress={() => { setTheme('light'); setModalVisible(false); }}>
+                <Image source={require('../assets/avatars/sun.png')} style={styles.image} />
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={styles.cancelButton}
-            >
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.cancelButton}>
               <Text style={styles.cancelText}>Agora não</Text>
             </TouchableOpacity>
           </View>
@@ -63,16 +52,22 @@ export default function PreferencesScreen({ navigation }) {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
     marginTop: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   modalOverlay: {
     flex: 1,
@@ -81,7 +76,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 32,
-    backgroundColor: '#fff',
+    backgroundColor: '#d3d3d3',
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
@@ -106,8 +101,21 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#008000',
+  },
+  backButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#808080',
+  },
+  backText: {
+    fontSize: 16,
+    color: '#000',
   },
 });
+
+
 
 

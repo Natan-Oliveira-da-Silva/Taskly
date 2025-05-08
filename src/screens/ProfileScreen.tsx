@@ -1,4 +1,3 @@
-// src/screens/ProfileScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, StyleSheet, SafeAreaView } from 'react-native';
 import ActionCard from '../components/atoms/ActionCard';
@@ -11,17 +10,19 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/types';
 import axios from 'axios';
+import { useTheme } from '../context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
+  const { isDarkMode } = useTheme();
+ 
 
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
   const [userName, setUserName] = useState('');
-  const [userPhone, setUserPhone] = useState('');
+  const [userPicture, setUserPicture] = useState('');
   const [userEmail, setUserEmail] = useState('');
 
   const modalConfigs = {
@@ -53,35 +54,40 @@ export default function ProfileScreen() {
   const handleCardPress = (id: string) => setSelectedActionId(id);
   const closeModal = () => setSelectedActionId(null);
   const config = selectedActionId ? modalConfigs[selectedActionId as keyof typeof modalConfigs] : null;
-
+ 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
-        const token = '...'; // mantenha seu token aqui
-        const response = await axios.get('http://15.229.11.44:3000', {
+        // 1. Buscar o token do AsyncStorage
+        const token = await AsyncStorage.getItem(TOKEN_KEY);
+ 
+        if (!token) {
+          console.warn('Token não encontrado');
+          return;
+        }
+ 
+        // 2. Fazer a requisição GET com o token
+        const response = await axios.get('http://15.229.11.44:3000/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        const { name, phone, email } = response.data;
-        setUserName(name);
-        setUserPhone(phone);
-        setUserEmail(email);
+ 
+        console.log('Resposta da API:', response.data);
       } catch (error) {
-        console.error('Erro ao buscar dados do usuário:', error);
+        console.error('Erro na requisição:', error);
       }
     };
-
-    fetchUserData();
+ 
+    fetchData();
   }, []);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#333' : '#f2f2f2' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1E1E1E' : '#f2f2f2' }]}>
       <ProfileInfo
         isDarkMode={isDarkMode}
         name={userName}
-        phone={userPhone}
+        phone={userPicture}
         email={userEmail}
       />
 
@@ -101,11 +107,11 @@ export default function ProfileScreen() {
       />
 
       <View style={styles.buttons}>
-      <SimpleButton
-  label="Preferências >"
-  onPress={() => navigation.navigate('PreferencesScreen', { isDarkMode, setIsDarkMode, })}
-  isDarkMode={isDarkMode}
-/>
+        <SimpleButton
+          label="Preferências >"
+          onPress={() => navigation.navigate('PreferencesScreen')}
+          isDarkMode={isDarkMode}
+        />
         <SimpleButton
           label="Termos e regulamentos >"
           onPress={() => navigation.navigate('TermsScreen')}
@@ -113,7 +119,7 @@ export default function ProfileScreen() {
         />
       </View>
 
-      <FooterNav backgroundColor={isDarkMode ? '#000000' : '#f2f2f2'} />
+      <FooterNav />
 
       {config && (
         <ActionModal
@@ -141,6 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 120,
   },
 });
+
 
 
 
