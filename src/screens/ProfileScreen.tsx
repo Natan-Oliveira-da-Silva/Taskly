@@ -56,31 +56,34 @@ export default function ProfileScreen() {
   const handleCardPress = (id: string) => setSelectedActionId(id);
   const closeModal = () => setSelectedActionId(null);
   const config = selectedActionId ? modalConfigs[selectedActionId as keyof typeof modalConfigs] : null;
- 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await AsyncStorage.setItem(TOKEN_KEY,'token_atualizado');
+        await AsyncStorage.setItem(TOKEN_KEY,'eyJhbGciOiJSUzI1NiIsImtpZCI6IjU5MWYxNWRlZTg0OTUzNjZjOTgyZTA1MTMzYmNhOGYyNDg5ZWFjNzIiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoibGV0aWNpYSBkYW1hc2Nlbm8iLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGItY29tcGFzcy0yMDI1MDMiLCJhdWQiOiJwYi1jb21wYXNzLTIwMjUwMyIsImF1dGhfdGltZSI6MTc0NjUwNzkzNywidXNlcl9pZCI6InRJMnZUVENsTGplekFZU2RsUUtUc1o1cTQ3bTIiLCJzdWIiOiJ0STJ2VFRDbExqZXpBWVNkbFFLVHNaNXE0N20yIiwiaWF0IjoxNzQ2NzUzODA0LCJleHAiOjE3NDY3NTc0MDQsImVtYWlsIjoibGV0aWNpYUBlbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsibGV0aWNpYUBlbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.FFOagJBVpEdeEPpMQIXqsiWaV9Mb_yBP4sbe1gb-UG9ZnKms9uywpIB3E7cTrsIzTyD9v3FPKGwCbvk25S5POPHXmj8C2iutpxwvspBJgEGDlb6jqpb_tNu3GdkIrUdXvWQHnNzTfwAwZ8p8WylmOpaNLNbVG-ypmxjmLUKKfrYEEOoPqnOSoTVZCLs3gxbpPzINgKCMqQc8rFbDhA6SycLlxkTSApemCIAt3qFHpABLQ4o2tsnHV8X7cs3lNzbOYiFgvSSMbyvypFojOYmkFv-96CHOKRqdPR6hQuc970CYuSy1GDOayN2Ch1yv2Yhf8SPIJGbBuAQD-oIN1-KGTA',);
         const token = await AsyncStorage.getItem(TOKEN_KEY);
- 
+
         if (!token) {
           console.warn('Token não encontrado');
           return;
         }
- 
-        // 2. Fazer a requisição GET com o token
+
         const response = await axios.get('http://15.229.11.44:3000/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
- 
+
         console.log('Resposta da API:', response.data);
+        const { name, picture, email } = response.data;
+        setUserPicture(picture);
+        setUserName(name);
+        setUserEmail(email);
       } catch (error) {
         console.error('Erro na requisição:', error);
       }
     };
- 
+
     fetchData();
   }, []);
 
@@ -88,8 +91,8 @@ export default function ProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1E1E1E' : '#f2f2f2' }]}>
       <ProfileInfo
         isDarkMode={isDarkMode}
-        name={userName}
         phone={userPicture}
+        name={userName}
         email={userEmail}
       />
 

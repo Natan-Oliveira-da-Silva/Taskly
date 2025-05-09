@@ -6,15 +6,17 @@ interface Props {
   name: string;
   phone: string;
   email: string;
+  picture: string;
 }
 
-export default function ProfileInfo({ isDarkMode = false, name, phone, email }: Props) {
+export default function ProfileInfo({ isDarkMode = false, name, phone, email, picture }: Props) {
   return (
     <View style={styles.profileContainer}>
       <View style={styles.avatarPlaceholder} />
       <Text style={[styles.name, { color: isDarkMode ? '#fff' : '#000' }]}>{name}</Text>
       <Text style={[styles.email, { color: isDarkMode ? '#fff' : '#000' }]}>{email}</Text>
       <Text style={[styles.phone, { color: isDarkMode ? '#fff' : '#000' }]}>{phone}</Text>
+      <Text style={[styles.picture, { color: isDarkMode ? '#fff' : '#000' }]}>{picture}</Text>
     </View>
   );
 }
@@ -43,6 +45,10 @@ const styles = StyleSheet.create({
   },
   phone: {
     fontSize: 18,
+    marginBottom: 18,
+  },
+  picture: {
+    fontSize: 40,
     marginBottom: 18,
   },
 });
