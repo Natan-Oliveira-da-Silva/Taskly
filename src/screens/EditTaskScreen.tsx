@@ -6,7 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Task } from '../navigation/types';
+import { storage } from '../utils/storage';
 
 import Header from '../components/molecules/Header';
 import TabBar from '../components/molecules/TabBar';
@@ -48,8 +48,8 @@ export default function EditTaskScreen() {
   const route = useRoute<EditTaskRouteProp>();
   const { task } = route.params;
   const navigation = useNavigation<NavigationProp>();
-  const [title, setTitle] = useState(task.titulo);
-  const [description, setDescription] = useState(task.descricao);
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
   const [tagInput, setTagInput] = useState('');
   const [tagsList, setTagsList] = useState<string[]>(task.tags || []);
   const [selectedPriority, setSelectedPriority] = useState<'ALTA' | 'MEDIA' | 'BAIXA' | ''>(
@@ -71,24 +71,53 @@ export default function EditTaskScreen() {
     setTagsList(tagsList.filter(tag => tag !== tagToRemove));
   };
 
-  const handleConfirmEdit = () => {
-    const updatedTask: Task = {
-      ...task,
-      titulo: title,
-      descricao: description,
-      tags: tagsList,
-      prioridade: selectedPriority,
-      prazo: dueDate,
-    };
+  const handleConfirmEdit = async () => {
+    try {
+      const token = await storage.getToken();
+      if (!token) throw new Error('Token não encontrado');
 
-    navigation.navigate('TaskDetail', { task: updatedTask });
+      // Dados que serão enviados para a API
+      const updatedAPIData = {
+        title,
+        description,
+        tags: tagsList,
+        done: task.done, // mantém o valor original
+      };
+
+      // Atualiza os dados no servidor
+      const response = await fetch(`http://15.229.11.44:3000/tasks/${task.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+        body: JSON.stringify(updatedAPIData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar tarefa');
+      }
+
+      // Dados locais que não estão na API
+      const updatedTask = {
+        ...task,
+        ...updatedAPIData,
+        prioridade: selectedPriority,
+        prazo: dueDate,
+      };
+
+      navigation.navigate('TaskDetail', { task: updatedTask });
+
+    } catch (error) {
+      console.error(error);
+    }
   };
+
 
 
   return (
     <View style={styles.viewOne}>
       <KeyboardAvoidingView
-
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
