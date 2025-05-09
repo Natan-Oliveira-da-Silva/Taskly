@@ -18,6 +18,7 @@ import { RootStackParamList } from '../navigation/types';
 import { storage } from '../utils/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BiometricModal from './modal/BiometricModal';
+import { useAuth } from '../context/AuthContext';
 
 type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
 
@@ -44,7 +45,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showBiometricModal, setShowBiometricModal] = useState(false);
   const [biometricCredentials, setBiometricCredentials] = useState<{ email: string; password: string } | null>(null);
-
+  const { signOut } = useAuth();
   useEffect(() => {
     loadTasksFromAPI();
   }, []);
@@ -167,120 +168,123 @@ export default function HomePage() {
 
   const toggleStatus = (id: string) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id
-          ? { ...task, status: task.status === 'pendente' ? 'concluida' : 'pendente' }
-          : task
-      )
+        prev.map((task) =>
+            task.id === id
+                ? { ...task, status: task.status === 'pendente' ? 'concluida' : 'pendente' }
+                : task
+        )
     );
   };
 
   const renderTask = ({ item }: { item: Task }) => (
-    <View style={styles.cardTask}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <TouchableOpacity style={styles.checkbox} onPress={() => toggleStatus(item.id)}>
-          {item.status === 'concluida' && <Image source={require('../assets/avatars/checkbox.png')} />}
+      <View style={styles.cardTask}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          <TouchableOpacity style={styles.checkbox} onPress={() => toggleStatus(item.id)}>
+            {item.status === 'concluida' && <Image source={require('../assets/avatars/checkbox.png')} />}
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.cardDescription}>{item.description}</Text>
+        {item.tags?.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {item.tags.map((tag, index) => (
+                  <View key={index} style={styles.tag}>
+                    <Text style={styles.tagText}>{tag}</Text>
+                  </View>
+              ))}
+            </View>
+        )}
+        <TouchableOpacity
+            style={styles.detailsButton}
+            onPress={() =>
+                navigation.navigate('TaskStack', {
+                  screen: 'TaskDetail',
+                  params: { task: item },
+                })
+            }
+        >
+          <Text style={styles.detailsButtonText}>VER DETALHES</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.cardDescription}>{item.description}</Text>
-      {item.tags?.length > 0 && (
-        <View style={styles.tagsContainer}>
-          {item.tags.map((tag, index) => (
-            <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-      <TouchableOpacity
-        style={styles.detailsButton}
-        onPress={() =>
-          navigation.navigate('TaskStack', {
-            screen: 'TaskDetail',
-            params: { task: item },
-          })
-        }
-      >
-        <Text style={styles.detailsButtonText}>VER DETALHES</Text>
-      </TouchableOpacity>
-    </View>
   );
 
   return (
-    <View style={styles.screen}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>TASKLY</Text>
-          <Avatar.Image
-            size={45}
-            source={
-              profile?.picture
-                ? avatarMap[profile.picture]
-                : require('../assets/avatars/ellipse1.png')
-            }
-          />
+      <View style={styles.screen}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>TASKLY</Text>
+            <Avatar.Image
+                size={45}
+                source={
+                  profile?.picture
+                      ? avatarMap[profile.picture]
+                      : require('../assets/avatars/ellipse1.png')
+                }
+            />
+          </View>
+
+          <TouchableOpacity style={styles.filtro}>
+            <Image source={require('../assets/avatars/filtro.png')} />
+          </TouchableOpacity>
+
+          {isLoading ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#583CC4" />
+              </View>
+          ) : tasks.length === 0 ? (
+              <View style={styles.card}>
+                <Image source={require('../assets/avatars/sad.png')} />
+                <Text style={styles.label}>No momento você não possui tarefa</Text>
+                <TouchableOpacity style={styles.buttonEmptyState} onPress={() => setModalVisible(true)}>
+                  <Text style={styles.resolveButtonText}>Criar Tarefas</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonEmptyState} onPress={() => signOut()}>
+                  <Text style={styles.resolveButtonText}>Sair</Text>
+                </TouchableOpacity>
+              </View>
+          ) : (
+              <FlatList
+                  data={tasks}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderTask}
+                  contentContainerStyle={styles.taskList}
+                  showsVerticalScrollIndicator={false}
+              />
+          )}
         </View>
 
-        <TouchableOpacity style={styles.filtro}>
-          <Image source={require('../assets/avatars/filtro.png')} />
-        </TouchableOpacity>
-
-        {isLoading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#583CC4" />
-          </View>
-        ) : tasks.length === 0 ? (
-          <View style={styles.card}>
-            <Image source={require('../assets/avatars/sad.png')} />
-            <Text style={styles.label}>No momento você não possui tarefa</Text>
-            <TouchableOpacity style={styles.buttonEmptyState} onPress={() => setModalVisible(true)}>
+        {!isLoading && tasks.length !== 0 && (
+            <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
               <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
             </TouchableOpacity>
-          </View>
-        ) : (
-          <FlatList
-            data={tasks}
-            keyExtractor={(item) => item.id}
-            renderItem={renderTask}
-            contentContainerStyle={styles.taskList}
-            showsVerticalScrollIndicator={false}
-          />
         )}
-      </View>
 
-      {!isLoading && tasks.length !== 0 && (
-        <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
-          <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
-        </TouchableOpacity>
-      )}
-
-      <CreateTaskModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        titulo={titulo}
-        descricao={descricao}
-        prazo={prazo}
-        onChangeTitulo={setTitulo}
-        onChangeDescricao={setDescricao}
-        onChangePrazo={setPrazo}
-        onSubmit={handleCreate}
-      />
-
-      {showBiometricModal && biometricCredentials && (
-        <BiometricModal
-          credentials={biometricCredentials}
-          visible={showBiometricModal}
-          onClose={() => setShowBiometricModal(false)}
+        <CreateTaskModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            titulo={titulo}
+            descricao={descricao}
+            prazo={prazo}
+            onChangeTitulo={setTitulo}
+            onChangeDescricao={setDescricao}
+            onChangePrazo={setPrazo}
+            onSubmit={handleCreate}
         />
-      )}
 
-      <TabBar
-        onClipboardPress={() => console.log('Clipboard')}
-        onBellPress={() => console.log('Bell')}
-        onMenuPress={() => console.log('Menu')}
-      />
-    </View>
+        {showBiometricModal && biometricCredentials && (
+            <BiometricModal
+                credentials={biometricCredentials}
+                visible={showBiometricModal}
+                onClose={() => setShowBiometricModal(false)}
+            />
+        )}
+
+        <TabBar
+            onClipboardPress={() => console.log('Clipboard')}
+            onBellPress={() => console.log('Bell')}
+            onMenuPress={() => console.log('Menu')}
+        />
+      </View>
   );
 }
 

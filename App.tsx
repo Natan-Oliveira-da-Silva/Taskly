@@ -5,6 +5,7 @@ import { COLORS } from './src/utils/constants';
 import { Provider as PaperProvider } from 'react-native-paper';
 import {AuthProvider} from "./src/context/AuthContext.tsx";
 import AppNavigator from "./src/navigation/AppNavigator.tsx";
+import {ErrorModalProvider} from "./src/context/ErrorModalContext.tsx";
 
 export default function App() {
     return (
@@ -12,7 +13,9 @@ export default function App() {
             <PaperProvider>
                 <StatusBar backgroundColor={COLORS.background} barStyle="dark-content" />
                 <AuthProvider>
-                    <AppNavigator />
+                    <ErrorModalProvider>
+                        <AppNavigator />
+                    </ErrorModalProvider>
                 </AuthProvider>
             </PaperProvider>
         </GestureHandlerRootView>

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import {
-    View,
     Text,
     StyleSheet,
     KeyboardAvoidingView,
     ScrollView,
     Platform,
-    Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,6 +12,8 @@ import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import { COLORS } from '../utils/constants';
 import { authService } from '../domain/auth';
+import { useErrorModal } from '../context/ErrorModalContext';
+import { parseApiError } from '../utils/parseApiError';
 
 export default function RegisterScreen() {
     const navigation = useNavigation<any>();
@@ -23,6 +23,7 @@ export default function RegisterScreen() {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const { showError } = useErrorModal();
 
     const [errors, setErrors] = useState({
         name: '',
@@ -98,7 +99,7 @@ export default function RegisterScreen() {
                 password,
             });
         } catch (error) {
-            Alert.alert('Erro', 'Não foi possível cadastrar. Tente novamente.');
+            showError(parseApiError(error));
         }
     };
 

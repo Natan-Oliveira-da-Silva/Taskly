@@ -8,6 +8,8 @@ import { COLORS } from '../utils/constants';
 import { useAuth } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import { useErrorModal } from '../context/ErrorModalContext';
+import { parseApiError } from '../utils/parseApiError';
 
 export default function LoginScreen() {
     const navigation = useNavigation<any>();
@@ -19,16 +21,17 @@ export default function LoginScreen() {
     const [rememberMe, setRememberMe] = useState(false);
     const [errors, setErrors] = useState({ email: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
+    const { showError } = useErrorModal();
 
     const handleSignIn = useCallback(
         async (email: string, password: string) => {
             try {
                 await auth.signIn(email, password);
-            } catch {
-                Alert.alert('Erro', 'E-mail ou senha inválidos.');
+            } catch (err) {
+                showError(parseApiError(err));
             }
         },
-        [auth]
+        [auth, showError]
     );
 
     useEffect(() => {
