@@ -13,11 +13,11 @@ import Button from '../components/atoms/Button';
 import { profileService } from '../domain/profile';
 
 const avatars = [
-    require('../assets/avatars/avatar1.png'),
-    require('../assets/avatars/avatar2.png'),
-    require('../assets/avatars/avatar3.png'),
-    require('../assets/avatars/avatar4.png'),
-    require('../assets/avatars/avatar5.png'),
+    require('../assets/avatars/avatar.jpg'),
+    require('../assets/avatars/avatar.jpg'),
+    require('../assets/avatars/avatar.jpg'),
+    require('../assets/avatars/avatar.jpg'),
+    require('../assets/avatars/avatar.jpg'),
 ];
 
 const borderColors = ['#5B3CC4', '#ca9872', '#32C25B', '#de2000', '#A97E5D'];
