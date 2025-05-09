@@ -12,6 +12,7 @@ export type RootStackParamList = {
     AuthStack: undefined;
     TaskStack: { screen: keyof TaskStackParamList; params: { task: Task } } | undefined;
     HomePage: undefined;
+    EditProfileScreen: undefined;
 };
 
 export type AuthStackParamList = {

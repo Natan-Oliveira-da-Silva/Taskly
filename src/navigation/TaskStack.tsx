@@ -8,6 +8,7 @@ import AvatarSelectionScreen from '../screens/AvatarSelectionScreen.tsx';
 import ProfileScreen from '../screens/ProfileScreen';
 import PreferencesScreen from '../screens/PreferencesScreen.tsx';
 import TermsScreen from '../screens/TermsScreen.tsx';
+import EditProfileScreen from '../screens/EditProfileScreen.tsx';
 
 const Stack = createStackNavigator<TaskStackParamList>();
 
@@ -21,7 +22,7 @@ export default function TaskStack() {
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="PreferencesScreen" component={PreferencesScreen} />
       <Stack.Screen name="TermsScreen" component={TermsScreen} />
-
+      <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 }

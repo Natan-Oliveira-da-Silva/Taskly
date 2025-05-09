@@ -5,10 +5,11 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   title: string;
-  description: string;
+  description?: string;
   confirmLabel: string;
   confirmColor: string;
   isDarkMode?: boolean;
+  onConfirm: () => void; // <-- Adicionado
 };
 
 export default function ActionModal({
@@ -19,6 +20,7 @@ export default function ActionModal({
   confirmLabel,
   confirmColor,
   isDarkMode = false,
+  onConfirm,
 }: Props) {
   return (
     <Modal
@@ -42,14 +44,16 @@ export default function ActionModal({
           >
             {title}
           </Text>
-          <Text
-            style={[
-              styles.description,
-              { color: isDarkMode ? '#fff' : '#444' },
-            ]}
-          >
-            {description}
-          </Text>
+          {description ? (
+            <Text
+              style={[
+                styles.description,
+                { color: isDarkMode ? '#fff' : '#444' },
+              ]}
+            >
+              {description}
+            </Text>
+          ) : null}
 
           <View style={styles.actions}>
             <TouchableOpacity onPress={onClose} style={styles.cancel}>
@@ -64,7 +68,9 @@ export default function ActionModal({
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={onClose}
+              onPress={() => {
+                onConfirm();
+              }}
               style={[styles.confirm, { backgroundColor: confirmColor }]}
             >
               <Text style={styles.confirmText}>{confirmLabel}</Text>
@@ -120,3 +126,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+

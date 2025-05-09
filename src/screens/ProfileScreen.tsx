@@ -97,16 +97,24 @@ export default function ProfileScreen() {
       <FooterNav />
 
       {config && (
-        <ActionModal
-          visible={!!selectedActionId}
-          onClose={closeModal}
-          title={config.title}
-          description={config.description}
-          confirmLabel={config.confirmLabel}
-          confirmColor={config.confirmColor}
-          isDarkMode={isDarkMode}
-        />
-      )}
+  <ActionModal
+    visible={!!selectedActionId}
+    onClose={closeModal}
+    title={config.title}
+    description={config.description}
+    confirmLabel={config.confirmLabel}
+    confirmColor={config.confirmColor}
+    isDarkMode={isDarkMode}
+    onConfirm={() => {
+      closeModal();
+      if (selectedActionId === '1') {
+        navigation.navigate('EditProfileScreen');
+      }
+    }}
+  />
+)}
+
+
     </SafeAreaView>
   );
 }
