@@ -16,6 +16,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
 export default function ProfileScreen() {
+  const TOKEN_KEY = 'TOKEN_KEY';
+
   const navigation = useNavigation<NavigationProp>();
   const { isDarkMode } = useTheme();
  
@@ -58,7 +60,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Buscar o token do AsyncStorage
+        await AsyncStorage.setItem(TOKEN_KEY,'token_atualizado');
         const token = await AsyncStorage.getItem(TOKEN_KEY);
  
         if (!token) {
