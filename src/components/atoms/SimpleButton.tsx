@@ -4,7 +4,7 @@ import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 interface Props {
   label: string;
   onPress?: () => void;
-  isDarkMode?: boolean; // <-- novo prop
+  isDarkMode?: boolean;
 }
 
 export default function SimpleButton({ label, onPress, isDarkMode = false }: Props) {

@@ -11,7 +11,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'EditProfileScreen
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { profile, updateProfile } = useUserProfile(); // Você precisa adicionar updateProfile no seu hook
+  const { profile, updateProfile } = useUserProfile();
   const { isDarkMode } = useTheme();
 
   const [name, setName] = useState('');
@@ -128,8 +128,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
-    //borderWidth: 1,
-    //borderColor: '#808080',
   },
   backText: {
     paddingTop: 10,
