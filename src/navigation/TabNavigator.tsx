@@ -2,10 +2,6 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-//import HomeScreen from '../screens/HomePage';
-//import NotificationScreen from '../screens/NotificationScreen';
-//import MenuScreen from '../screens/MenuScreen';
-
 const Tab = createBottomTabNavigator();
 
 function getTabBarIcon(routeName: string) {
@@ -50,4 +46,6 @@ export default function TabNavigator() {
       <Tab.Screen name="Menu" component={MenuScreen} />
     </Tab.Navigator>
   );
-}
+} 
+
+
