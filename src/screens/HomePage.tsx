@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Alert, ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -9,7 +16,8 @@ import CreateTaskModal from './modal/CreateTaskModal';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { storage } from '../utils/storage';
-import { useTheme } from '../context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import BiometricModal from './modal/BiometricModal';
 
 type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
 
@@ -34,18 +42,42 @@ export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [profile, setProfile] = useState<{ picture: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { isDarkMode } = useTheme();
-
-  const backgroundColor = isDarkMode ? '#121212' : '#F4F4F4';
-  const textColor = isDarkMode ? '#FFFFFF' : '#1E1E1E';
-  const cardBackgroundColor = isDarkMode ? '#1E1E1E' : '#FFFFFF';
-  const tagBackgroundColor = isDarkMode ? '#2A2A2A' : '#EEEEEE';
-  const tagTextColor = isDarkMode ? '#CCCCCC' : '#555';
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [biometricCredentials, setBiometricCredentials] = useState<{ email: string; password: string } | null>(null);
 
   useEffect(() => {
     loadTasksFromAPI();
+  }, []);
+
+  useEffect(() => {
     loadUserProfile();
   }, []);
+
+  useEffect(() => {
+    checkBiometricAndAvatarFlow();
+  }, []);
+
+  const checkBiometricAndAvatarFlow = async () => {
+    try {
+      const firstLogin = await AsyncStorage.getItem('firstLogin');
+      if (firstLogin === 'true') {
+        await AsyncStorage.removeItem('firstLogin');
+        navigation.replace('AvatarSelectionScreen');
+        return;
+      }
+
+      const enabled = await AsyncStorage.getItem('biometricEnabled');
+      const remember = await AsyncStorage.getItem('rememberMe');
+      const creds = await AsyncStorage.getItem('biometricCredentials');
+
+      if (!enabled && remember && creds) {
+        setBiometricCredentials(JSON.parse(creds));
+        setShowBiometricModal(true);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar fluxo de login:', error);
+    }
+  };
 
   const loadUserProfile = async () => {
     try {
@@ -105,7 +137,11 @@ export default function HomePage() {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ title, description, done: false }),
+        body: JSON.stringify({
+          title,
+          description,
+          done: false,
+        }),
       });
 
       if (!response.ok) throw new Error('Erro ao criar tarefa na API');
@@ -123,7 +159,6 @@ export default function HomePage() {
     }
 
     await sendTaskToAPI(titulo, descricao);
-
     setTitulo('');
     setDescricao('');
     setPrazo('');
@@ -141,21 +176,19 @@ export default function HomePage() {
   };
 
   const renderTask = ({ item }: { item: Task }) => (
-    <View style={[styles.cardTask, { backgroundColor: cardBackgroundColor }]}>
+    <View style={styles.cardTask}>
       <View style={styles.cardHeader}>
-        <Text style={[styles.cardTitle, { color: textColor }]}>{item.title}</Text>
+        <Text style={styles.cardTitle}>{item.title}</Text>
         <TouchableOpacity style={styles.checkbox} onPress={() => toggleStatus(item.id)}>
-          {item.status === 'concluida' && (
-            <Image source={require('../assets/avatars/checkbox.png')} />
-          )}
+          {item.status === 'concluida' && <Image source={require('../assets/avatars/checkbox.png')} />}
         </TouchableOpacity>
       </View>
-      <Text style={[styles.cardDescription, { color: textColor }]}>{item.description}</Text>
+      <Text style={styles.cardDescription}>{item.description}</Text>
       {item.tags?.length > 0 && (
         <View style={styles.tagsContainer}>
           {item.tags.map((tag, index) => (
-            <View key={index} style={[styles.tag, { backgroundColor: tagBackgroundColor }]}>
-              <Text style={[styles.tagText, { color: tagTextColor }]}>{tag}</Text>
+            <View key={index} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
             </View>
           ))}
         </View>
@@ -175,10 +208,10 @@ export default function HomePage() {
   );
 
   return (
-    <View style={[styles.screen, { backgroundColor }]}>
+    <View style={styles.screen}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: textColor }]}>TASKLY</Text>
+          <Text style={styles.title}>TASKLY</Text>
           <Avatar.Image
             size={45}
             source={
@@ -200,13 +233,8 @@ export default function HomePage() {
         ) : tasks.length === 0 ? (
           <View style={styles.card}>
             <Image source={require('../assets/avatars/sad.png')} />
-            <Text style={[styles.label, { color: textColor }]}>
-              No momento você não possui tarefa
-            </Text>
-            <TouchableOpacity
-              style={styles.buttonEmptyState}
-              onPress={() => setModalVisible(true)}
-            >
+            <Text style={styles.label}>No momento você não possui tarefa</Text>
+            <TouchableOpacity style={styles.buttonEmptyState} onPress={() => setModalVisible(true)}>
               <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
             </TouchableOpacity>
           </View>
@@ -222,10 +250,7 @@ export default function HomePage() {
       </View>
 
       {!isLoading && tasks.length !== 0 && (
-        <TouchableOpacity
-          style={styles.buttonFloating}
-          onPress={() => setModalVisible(true)}
-        >
+        <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
           <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
         </TouchableOpacity>
       )}
@@ -242,6 +267,14 @@ export default function HomePage() {
         onSubmit={handleCreate}
       />
 
+      {showBiometricModal && biometricCredentials && (
+        <BiometricModal
+          credentials={biometricCredentials}
+          visible={showBiometricModal}
+          onClose={() => setShowBiometricModal(false)}
+        />
+      )}
+
       <TabBar
         onClipboardPress={() => console.log('Clipboard')}
         onBellPress={() => console.log('Bell')}
@@ -254,6 +287,7 @@ export default function HomePage() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: '#F4F4F4',
     paddingHorizontal: 25,
   },
   container: {
@@ -274,11 +308,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     fontFamily: 'Roboto-Bold',
+    color: '#1E1E1E',
   },
   label: {
     marginTop: 10,
     fontSize: 16,
     fontFamily: 'Roboto-Base',
+    color: '#AAAAAA',
   },
   card: {
     alignItems: 'center',
@@ -297,7 +333,6 @@ const styles = StyleSheet.create({
     bottom: 70,
     left: 27,
     right: 27,
-    marginTop: 14,
     backgroundColor: '#583CC4',
     borderRadius: 8,
     justifyContent: 'center',
@@ -312,6 +347,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cardTask: {
+    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -328,10 +364,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontFamily: 'Roboto-Bold',
+    color: '#1E1E1E',
   },
   cardDescription: {
     marginTop: 6,
     fontSize: 14,
+    color: '#4F4F4F',
   },
   taskList: {
     gap: 16,
@@ -353,12 +391,14 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tag: {
+    backgroundColor: '#eee',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   tagText: {
     fontSize: 10,
+    color: '#555',
   },
   detailsButton: {
     marginTop: 12,
@@ -374,4 +414,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Regular',
   },
 });
+
 
