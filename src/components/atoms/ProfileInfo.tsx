@@ -1,56 +1,48 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
-interface Props {
-  isDarkMode?: boolean;
+interface ProfileInfoProps {
   name: string;
-  phone: string;
   email: string;
-  picture: string;
+  phone_number: string;
+  avatarSource: any;
+  isDarkMode: boolean;
 }
 
-export default function ProfileInfo({ isDarkMode = false, name, phone, email, picture }: Props) {
+export default function ProfileInfo({ name, email, phone_number, avatarSource, isDarkMode }: ProfileInfoProps) {
   return (
-    <View style={styles.profileContainer}>
-      <Text style={[styles.name, { color: isDarkMode ? '#fff' : '#000' }]}>{name}</Text>
-      <Text style={[styles.email, { color: isDarkMode ? '#fff' : '#000' }]}>{email}</Text>
-      <Text style={[styles.phone, { color: isDarkMode ? '#fff' : '#000' }]}>{phone}</Text>
-      <Text style={[styles.picture, { color: isDarkMode ? '#fff' : '#000' }]}>{picture}</Text>
+    <View style={styles.container}>
+      <Image source={avatarSource} style={styles.avatar} resizeMode="cover" />
+      <Text style={[styles.name, { color: isDarkMode ? '#FFFFFF' : '#1E1E1E' }]}>{name}</Text>
+      <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>{email}</Text>
+      <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>(99)999999999</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  profileContainer: {
+  container: {
     alignItems: 'center',
-    marginBottom: 24,
-    marginTop: 44,
+    marginBottom: 100,
+    marginTop: 30,
   },
-  avatarPlaceholder: {
-    width: 150,
-    height: 150,
-    borderRadius: 80,
-    backgroundColor: '#ccc',
-    marginBottom: 12,
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 48,
+    marginBottom: 16,
   },
   name: {
     fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 10,
+    fontWeight: 'bold',
+    fontFamily: 'Roboto-Medium',
+    textAlign: 'center',
+    marginBottom: 4,
   },
-  email: {
-    fontSize: 18,
-    marginBottom: 5,
-  },
-  phone: {
-    fontSize: 18,
-    marginBottom: 18,
-  },
-  picture: {
-    fontSize: 40,
-    marginBottom: 18,
+  infoText: {
+    fontSize: 24,
+    fontFamily: 'Roboto-Regular',
+    textAlign: 'center',
   },
 });
-
-
 

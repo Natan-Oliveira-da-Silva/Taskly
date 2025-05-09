@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, SafeAreaView } from 'react-native';
 import ActionCard from '../components/atoms/ActionCard';
 import ProfileInfo from '../components/atoms/ProfileInfo';
@@ -9,22 +9,18 @@ import carouselData from '../data/carouselData';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/types';
-import axios from 'axios';
 import { useTheme } from '../context/ThemeContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
 export default function ProfileScreen() {
-  const TOKEN_KEY = 'TOKEN_KEY';
   const navigation = useNavigation<NavigationProp>();
   const { isDarkMode } = useTheme();
- 
+  const { profile, avatarSource } = useUserProfile();
+
 
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
-  const [userName, setUserName] = useState('');
-  const [userPicture, setUserPicture] = useState('');
-  const [userEmail, setUserEmail] = useState('');
 
   const modalConfigs = {
     '1': {
@@ -55,42 +51,20 @@ export default function ProfileScreen() {
   const handleCardPress = (id: string) => setSelectedActionId(id);
   const closeModal = () => setSelectedActionId(null);
   const config = selectedActionId ? modalConfigs[selectedActionId as keyof typeof modalConfigs] : null;
- 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await AsyncStorage.setItem(TOKEN_KEY,'eyJhbGciOiJSUzI1NiIsImtpZCI6IjU5MWYxNWRlZTg0OTUzNjZjOTgyZTA1MTMzYmNhOGYyNDg5ZWFjNzIiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoibGV0aWNpYSBkYW1hc2Nlbm8iLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcGItY29tcGFzcy0yMDI1MDMiLCJhdWQiOiJwYi1jb21wYXNzLTIwMjUwMyIsImF1dGhfdGltZSI6MTc0NjUwNzkzNywidXNlcl9pZCI6InRJMnZUVENsTGplekFZU2RsUUtUc1o1cTQ3bTIiLCJzdWIiOiJ0STJ2VFRDbExqZXpBWVNkbFFLVHNaNXE0N20yIiwiaWF0IjoxNzQ2Nzk0MjgzLCJleHAiOjE3NDY3OTc4ODMsImVtYWlsIjoibGV0aWNpYUBlbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsibGV0aWNpYUBlbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.EWEpfFQDuc-OJIBTNN8Mc9ftWlAZD-GJT__s-gN_cHfijuOPW1YpPZG1MCdVDww3wBcV2hjIdclFmOlLnMaK2w-zLHwcgwCE0tnsvMhN4JLgzBuCa7rQ39bNFydPljjVBatE0EKfPwQIbGpTomjZkWDUxZemE9W2lR5HhppC1ScfsbUp3BalALPPfAZjzmalQJ56Dbf-VOUslQXEFXWZ4FSQktFcHgp5e-QzYY6uvN_QxLh7G7hTmjF-WweSVIiJsXDfsZT0dHtDaLuuGxJdciIH23Cq2EgKiwWWqh_WbucMest-Kyi9ZkHteAa36toYo2Z1i300rLTRdD9Vjfl2RA');
-        const token = await AsyncStorage.getItem(TOKEN_KEY);
- 
-        if (!token) {
-          console.warn('Token não encontrado');
-          return;
-        }
- 
-        // 2. Fazer a requisição GET com o token
-        const response = await axios.get('http://15.229.11.44:3000/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
- 
-        console.log('Resposta da API:', response.data);
-      } catch (error) {
-        console.error('Erro na requisição:', error);
-      }
-    };
- 
-    fetchData();
-  }, []);
+  console.log('🖥️ ProfileScreen foi montada');
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1E1E1E' : '#f2f2f2' }]}>
       <ProfileInfo
-        isDarkMode={isDarkMode}
-        name={userName}
-        phone={userPicture}
-        email={userEmail}
-      />
+      isDarkMode={isDarkMode}
+      name={profile?.name || ''}
+      phone_number={profile?.phone_number || ''}
+      email={profile?.email || ''}
+      avatarSource={avatarSource}
+/>
+
+
 
       <FlatList
         horizontal
@@ -148,6 +122,7 @@ const styles = StyleSheet.create({
     marginBottom: 120,
   },
 });
+
 
 
 

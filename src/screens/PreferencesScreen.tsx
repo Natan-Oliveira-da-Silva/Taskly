@@ -13,7 +13,7 @@ export default function PreferencesScreen({ navigation }) {
     <View style={[styles.container, { backgroundColor: isDarkMode ? '#1e1e1e' : '#f2f2f2' }]}>
       <View style={styles.header}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Text style={[styles.backText, { color: isDarkMode ? '#fff' : '#000' }]}>‹  VOLTAR</Text>
+        <Text style={[styles.backText, { color: isDarkMode ? '#fff' : '#fff' }]}>‹  VOLTAR</Text>
       </TouchableOpacity>
         <Text style={[styles.title, { color: isDarkMode ? '#fff' : '#000' }]}>Preferências</Text>
         <View style={{ width: 80 }} />
@@ -107,12 +107,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#808080',
+    //borderWidth: 1,
+    //borderColor: '#808080',
   },
   backText: {
-    fontSize: 16,
-    color: '#000',
+    paddingTop: 10,
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
+    backgroundColor: '#1E1E1E',
+    marginRight: 50,
+    marginLeft: 30,
+    padding: 10,
+    borderRadius:20,
   },
 });
 
