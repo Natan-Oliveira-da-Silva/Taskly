@@ -18,7 +18,6 @@ import { RootStackParamList } from '../navigation/types';
 import { storage } from '../utils/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BiometricModal from './modal/BiometricModal';
-import { useAuth } from '../context/AuthContext';
 
 type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
 
@@ -45,7 +44,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showBiometricModal, setShowBiometricModal] = useState(false);
   const [biometricCredentials, setBiometricCredentials] = useState<{ email: string; password: string } | null>(null);
-  const { signOut } = useAuth();
+
   useEffect(() => {
     loadTasksFromAPI();
   }, []);
@@ -237,9 +236,6 @@ export default function HomePage() {
                 <Text style={styles.label}>No momento você não possui tarefa</Text>
                 <TouchableOpacity style={styles.buttonEmptyState} onPress={() => setModalVisible(true)}>
                   <Text style={styles.resolveButtonText}>Criar Tarefas</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonEmptyState} onPress={() => signOut()}>
-                  <Text style={styles.resolveButtonText}>Sair</Text>
                 </TouchableOpacity>
               </View>
           ) : (
