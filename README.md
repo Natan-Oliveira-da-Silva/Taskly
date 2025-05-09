@@ -92,7 +92,45 @@ O app suporta **tema claro e escuro**, alternando conforme a preferência do usu
 
 ## ▶️ Como Rodar o Projeto
 
-É NECESSÁRIO ADICIONAR INSTRUÇÕES DE COMO RODAR O PROJETO NESTE TÓPICO
+### Pré-requisitos
+
+- Node.js (versão LTS recomendada)
+- React Native CLI (`npm install -g react-native-cli`)
+- Android Studio (com um AVD configurado) ou Xcode (macOS) para iOS
+- Java JDK instalado
+- Dispositivo físico com depuração USB ativada (opcional)
+
+### Passos para rodar
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/taskly.git
+cd taskly
+
+# 2. Instale as dependências
+npm install
+# ou
+yarn
+
+# 3. Inicie o Metro Bundler em um terminal separado
+npx react-native start
+```
+
+### Para rodar no Android
+
+Certifique-se de que um emulador está rodando no Android Studio ou que um dispositivo com depuração USB está conectado.
+
+```bash
+npx react-native run-android
+```
+
+### Para rodar no iOS (apenas no macOS)
+
+Certifique-se de que você tem o Xcode instalado.
+
+```bash
+npx react-native run-ios
+```
 
 ---
 
