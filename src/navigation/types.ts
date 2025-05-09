@@ -28,14 +28,16 @@ export type AuthStackParamList = {
     AvatarSelectionScreen: undefined;
   };
 
-  export type Task = {
+  export interface Task {
     id: string;
-    titulo: string;
-    descricao: string;
+    title: string;
+    description: string;
     tags: string[];
+    done: boolean;
+    createdAt: string;
     status: 'pendente' | 'concluida';
-    prazo?: string;
     prioridade?: string;
-  };
+    prazo: string;
+  }
 
 export type TaskDetailRouteProp = RouteProp<TaskStackParamList, 'TaskDetail'>;
