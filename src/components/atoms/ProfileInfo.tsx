@@ -12,7 +12,6 @@ interface Props {
 export default function ProfileInfo({ isDarkMode = false, name, phone, email, picture }: Props) {
   return (
     <View style={styles.profileContainer}>
-      <View style={styles.avatarPlaceholder} />
       <Text style={[styles.name, { color: isDarkMode ? '#fff' : '#000' }]}>{name}</Text>
       <Text style={[styles.email, { color: isDarkMode ? '#fff' : '#000' }]}>{email}</Text>
       <Text style={[styles.phone, { color: isDarkMode ? '#fff' : '#000' }]}>{phone}</Text>

@@ -1,24 +1,35 @@
-// src/navigation/AppNavigator.tsx
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import ProfileScreen from '../screens/ProfileScreen';
-import TermsScreen from '../screens/TermsScreen';
-import PreferencesScreen from '../screens/PreferencesScreen';
+import { createStackNavigator } from '@react-navigation/stack';
 import { RootStackParamList } from './types';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AuthStack from './AuthStack';
+import TaskStack from './TaskStack';
+import { useAuth } from '../context/AuthContext';
+import { View, ActivityIndicator } from 'react-native';
+import { COLORS } from '../utils/constants';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="ProfileScreen">
-        <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="TermsScreen" component={TermsScreen} options={{headerShown:false}} />
-        <Stack.Screen name="PreferencesScreen" component={PreferencesScreen} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+    const { isAuthenticated, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color={COLORS.primaryLight} />
+            </View>
+        );
+    }
+
+    return (
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                {isAuthenticated ? (
+                    <Stack.Screen name="TaskStack" component={TaskStack} />
+                ) : (
+                    <Stack.Screen name="AuthStack" component={AuthStack} />
+                )}
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 }
-
-

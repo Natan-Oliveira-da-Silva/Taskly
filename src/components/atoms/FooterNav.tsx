@@ -18,9 +18,10 @@ export default function FooterNav() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
       <View style={[styles.container, { backgroundColor }]}>
-        <TouchableOpacity>
-          <Icon name="clipboard-text-outline" size={28} color="#5B3CC4" />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('TaskStack', { screen: 'HomePage' })}>
+  <Icon name="clipboard-text-outline" size={28} color="#5B3CC4" />
+</TouchableOpacity>
+
 
         <TouchableOpacity>
           <Icon name="bell-outline" size={28} color="#5B3CC4" />
