@@ -6,6 +6,8 @@ import {
     TouchableOpacity,
     Image,
     FlatList,
+    Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -13,7 +15,7 @@ import TabBar from '../components/molecules/TabBar';
 import CreateTaskModal from './modal/CreateTaskModal';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { useAuth } from '../context/AuthContext';
+import { storage } from '../utils/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BiometricModal from './modal/BiometricModal';
 
@@ -21,9 +23,11 @@ type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Hom
 
 export interface Task {
     id: string;
-    titulo: string;
-    descricao: string;
+    title: string;
+    description: string;
     tags: string[];
+    done: boolean;
+    createdAt: string;
     status: 'pendente' | 'concluida';
     prioridade?: string;
     prazo: string;
@@ -31,21 +35,32 @@ export interface Task {
 
 export default function HomePage() {
     const navigation = useNavigation<HomePageNavigationProp>();
-    const { signOut } = useAuth();
-
     const [modalVisible, setModalVisible] = useState(false);
     const [titulo, setTitulo] = useState('');
     const [descricao, setDescricao] = useState('');
     const [prazo, setPrazo] = useState('');
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [profile, setProfile] = useState<{ picture: string } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const [showModal, setShowModal] = useState(false);
-    const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null);
+    const [showBiometricModal, setShowBiometricModal] = useState(false);
+    const [biometricCredentials, setBiometricCredentials] = useState<{ email: string; password: string } | null>(null);
 
     useEffect(() => {
-        const handleStartup = async () => {
-            const firstLogin = await AsyncStorage.getItem('firstLogin');
+        loadTasksFromAPI();
+    }, []);
 
+    useEffect(() => {
+        loadUserProfile();
+    }, []);
+
+    useEffect(() => {
+        checkBiometricAndAvatarFlow();
+    }, []);
+
+    const checkBiometricAndAvatarFlow = async () => {
+        try {
+            const firstLogin = await AsyncStorage.getItem('firstLogin');
             if (firstLogin === 'true') {
                 await AsyncStorage.removeItem('firstLogin');
                 navigation.replace('AvatarSelectionScreen');
@@ -57,24 +72,95 @@ export default function HomePage() {
             const creds = await AsyncStorage.getItem('biometricCredentials');
 
             if (!enabled && remember && creds) {
-                setCredentials(JSON.parse(creds));
-                setShowModal(true);
+                setBiometricCredentials(JSON.parse(creds));
+                setShowBiometricModal(true);
             }
-        };
+        } catch (error) {
+            console.error('Erro ao verificar fluxo de login:', error);
+        }
+    };
 
-        handleStartup();
-    }, []);
+    const loadUserProfile = async () => {
+        try {
+            const token = await storage.getToken();
+            if (!token) return;
 
-    const handleCreate = () => {
-        const novaTask: Task = {
-            id: Date.now().toString(),
-            titulo,
-            descricao,
-            tags: [],
-            status: 'pendente',
-            prazo,
-        };
-        setTasks((prev) => [...prev, novaTask]);
+            const response = await fetch('http://15.229.11.44:3000/profile', {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            });
+
+            const data = await response.json();
+            setProfile(data);
+        } catch (error) {
+            console.error('Erro ao carregar o perfil:', error);
+        }
+    };
+
+    const avatarMap: Record<string, any> = {
+        avatar_1: require('../assets/avatars/avatar1.png'),
+        avatar_2: require('../assets/avatars/avatar2.png'),
+        avatar_3: require('../assets/avatars/avatar3.png'),
+        avatar_4: require('../assets/avatars/avatar4.png'),
+        avatar_5: require('../assets/avatars/avatar5.png'),
+    };
+
+    const loadTasksFromAPI = async () => {
+        setIsLoading(true);
+        try {
+            const token = await storage.getToken();
+            if (!token) return;
+
+            const response = await fetch('http://15.229.11.44:3000/tasks', {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            });
+
+            const data = await response.json();
+            setTasks(data);
+        } catch (error) {
+            console.error('Erro ao buscar tarefas da API:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const sendTaskToAPI = async (title: string, description: string) => {
+        try {
+            const token = await storage.getToken();
+            if (!token) throw new Error('Token não encontrado');
+
+            const response = await fetch('http://15.229.11.44:3000/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + token,
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    done: false,
+                }),
+            });
+
+            if (!response.ok) throw new Error('Erro ao criar tarefa na API');
+
+            await loadTasksFromAPI();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleCreate = async () => {
+        if (!titulo || !descricao) {
+            Alert.alert('Preencha todos os campos obrigatórios');
+            return;
+        }
+
+        await sendTaskToAPI(titulo, descricao);
+
         setTitulo('');
         setDescricao('');
         setPrazo('');
@@ -85,29 +171,28 @@ export default function HomePage() {
         setTasks((prev) =>
             prev.map((task) =>
                 task.id === id
-                    ? { ...task, status: task.status === 'pendente' ? 'concluida' : 'pendente' }
+                    ? {
+                        ...task,
+                        status: task.status === 'pendente' ? 'concluida' : 'pendente',
+                    }
                     : task
             )
         );
     };
 
-    const logout = () => {
-        signOut();
-    };
-
     const renderTask = ({ item }: { item: Task }) => (
         <View style={styles.cardTask}>
             <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.titulo}</Text>
+                <Text style={styles.cardTitle}>{item.title}</Text>
                 <TouchableOpacity style={styles.checkbox} onPress={() => toggleStatus(item.id)}>
                     {item.status === 'concluida' && <Image source={require('../assets/avatars/checkbox.png')} />}
                 </TouchableOpacity>
             </View>
-            <Text style={styles.cardDescription}>{item.descricao}</Text>
-            {item.tags.length > 0 && (
+            <Text style={styles.cardDescription}>{item.description}</Text>
+            {item.tags?.length > 0 && (
                 <View style={styles.tagsContainer}>
-                    {item.tags.map((tag) => (
-                        <View key={tag} style={styles.tag}>
+                    {item.tags.map((tag, index) => (
+                        <View key={index} style={styles.tag}>
                             <Text style={styles.tagText}>{tag}</Text>
                         </View>
                     ))}
@@ -132,14 +217,25 @@ export default function HomePage() {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.title}>TASKLY</Text>
-                    <Avatar.Image size={45} source={require('./../assets/avatars/ellipse1.png')} />
+                    <Avatar.Image
+                        size={45}
+                        source={
+                            profile?.picture
+                                ? avatarMap[profile.picture]
+                                : require('../assets/avatars/ellipse1.png')
+                        }
+                    />
                 </View>
 
                 <TouchableOpacity style={styles.filtro}>
                     <Image source={require('../assets/avatars/filtro.png')} />
                 </TouchableOpacity>
 
-                {tasks.length === 0 ? (
+                {isLoading ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#583CC4" />
+                    </View>
+                ) : tasks.length === 0 ? (
                     <View style={styles.card}>
                         <Image source={require('../assets/avatars/sad.png')} />
                         <Text style={styles.label}>No momento você não possui tarefa</Text>
@@ -158,15 +254,10 @@ export default function HomePage() {
                 )}
             </View>
 
-            {tasks.length !== 0 && (
-                <>
-                    <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
-                        <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonLogoutFloating} onPress={logout}>
-                        <Text style={styles.resolveButtonText}>Sair</Text>
-                    </TouchableOpacity>
-                </>
+            {!isLoading && tasks.length !== 0 && (
+                <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
+                    <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
+                </TouchableOpacity>
             )}
 
             <CreateTaskModal
@@ -181,11 +272,11 @@ export default function HomePage() {
                 onSubmit={handleCreate}
             />
 
-            {showModal && credentials && (
+            {showBiometricModal && biometricCredentials && (
                 <BiometricModal
-                    credentials={credentials}
-                    visible={showModal}
-                    onClose={() => setShowModal(false)}
+                    credentials={biometricCredentials}
+                    visible={showBiometricModal}
+                    onClose={() => setShowBiometricModal(false)}
                 />
             )}
 
@@ -244,22 +335,11 @@ const styles = StyleSheet.create({
     },
     buttonFloating: {
         position: 'absolute',
-        bottom: 130,
+        bottom: 70,
         left: 27,
         right: 27,
+        marginTop: 14,
         backgroundColor: '#583CC4',
-        borderRadius: 8,
-        justifyContent: 'center',
-        paddingVertical: 10,
-        marginBottom: 10,
-        zIndex: 10,
-    },
-    buttonLogoutFloating: {
-        position: 'absolute',
-        bottom: 60,
-        left: 27,
-        right: 27,
-        backgroundColor: '#E94D4D',
         borderRadius: 8,
         justifyContent: 'center',
         paddingVertical: 10,
@@ -292,6 +372,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto-Bold',
         color: '#1E1E1E',
     },
+    statusIndicator: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+    },
     cardDescription: {
         marginTop: 6,
         fontSize: 14,
@@ -299,7 +384,7 @@ const styles = StyleSheet.create({
     },
     taskList: {
         gap: 16,
-        paddingBottom: 160,
+        paddingBottom: 120,
     },
     checkbox: {
         width: 20,
