@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
+    FlatList,
+} from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import TabBar from '../components/molecules/TabBar';
 import CreateTaskModal from './modal/CreateTaskModal';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import BiometricModal from './modal/BiometricModal';
 
 type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
 
@@ -17,29 +27,54 @@ export interface Task {
     status: 'pendente' | 'concluida';
     prioridade?: string;
     prazo: string;
-  }
+}
 
 export default function HomePage() {
     const navigation = useNavigation<HomePageNavigationProp>();
+    const { signOut } = useAuth();
+
     const [modalVisible, setModalVisible] = useState(false);
     const [titulo, setTitulo] = useState('');
     const [descricao, setDescricao] = useState('');
     const [prazo, setPrazo] = useState('');
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    const handleCreate = () => {
-        const novaTask: Task = {
-          id: Date.now().toString(),
-          titulo,
-          descricao,
-          tags: [], // ← deixamos vazio por enquanto
-          status: 'pendente',
-          prazo,
+    const [showModal, setShowModal] = useState(false);
+    const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null);
+
+    useEffect(() => {
+        const handleStartup = async () => {
+            const firstLogin = await AsyncStorage.getItem('firstLogin');
+
+            if (firstLogin === 'true') {
+                await AsyncStorage.removeItem('firstLogin');
+                navigation.replace('AvatarSelectionScreen');
+                return;
+            }
+
+            const enabled = await AsyncStorage.getItem('biometricEnabled');
+            const remember = await AsyncStorage.getItem('rememberMe');
+            const creds = await AsyncStorage.getItem('biometricCredentials');
+
+            if (!enabled && remember && creds) {
+                setCredentials(JSON.parse(creds));
+                setShowModal(true);
+            }
         };
 
-        setTasks((prev) => [...prev, novaTask]);
+        handleStartup();
+    }, []);
 
-        // Limpa e fecha o modal
+    const handleCreate = () => {
+        const novaTask: Task = {
+            id: Date.now().toString(),
+            titulo,
+            descricao,
+            tags: [],
+            status: 'pendente',
+            prazo,
+        };
+        setTasks((prev) => [...prev, novaTask]);
         setTitulo('');
         setDescricao('');
         setPrazo('');
@@ -48,59 +83,44 @@ export default function HomePage() {
 
     const toggleStatus = (id: string) => {
         setTasks((prev) =>
-          prev.map((task) =>
-            task.id === id
-              ? {
-                  ...task,
-                  status: task.status === 'pendente' ? 'concluida' : 'pendente',
-                }
-              : task
-          )
+            prev.map((task) =>
+                task.id === id
+                    ? { ...task, status: task.status === 'pendente' ? 'concluida' : 'pendente' }
+                    : task
+            )
         );
-      };
+    };
+
+    const logout = () => {
+        signOut();
+    };
 
     const renderTask = ({ item }: { item: Task }) => (
         <View style={styles.cardTask}>
-            {/* Título e status no topo */}
             <View style={styles.cardHeader}>
                 <Text style={styles.cardTitle}>{item.titulo}</Text>
-
-                {/* Checkbox redondo */}
-                <TouchableOpacity
-                    style={[
-                    styles.checkbox,
-                    ]}
-                    onPress={() => toggleStatus(item.id)}
-                >
-                    {item.status === 'concluida' && (
-                    <Image source={require('../assets/avatars/checkbox.png')} />
-                    )}
+                <TouchableOpacity style={styles.checkbox} onPress={() => toggleStatus(item.id)}>
+                    {item.status === 'concluida' && <Image source={require('../assets/avatars/checkbox.png')} />}
                 </TouchableOpacity>
             </View>
-
-            {/* Descrição logo abaixo */}
             <Text style={styles.cardDescription}>{item.descricao}</Text>
-
-            {/* Tags (vazio por enquanto) */}
             {item.tags.length > 0 && (
                 <View style={styles.tagsContainer}>
-                {item.tags.map((tag) => (
-                    <View key={tag} style={styles.tag}>
-                    <Text style={styles.tagText}>{tag}</Text>
-                    </View>
-                ))}
+                    {item.tags.map((tag) => (
+                        <View key={tag} style={styles.tag}>
+                            <Text style={styles.tagText}>{tag}</Text>
+                        </View>
+                    ))}
                 </View>
             )}
-
-            {/* Botão Ver Detalhes */}
             <TouchableOpacity
-            style={styles.detailsButton}
-            onPress={() =>
-                navigation.navigate('TaskStack', {
-                  screen: 'TaskDetail',
-                  params: { task: item },
-                })
-              }
+                style={styles.detailsButton}
+                onPress={() =>
+                    navigation.navigate('TaskStack', {
+                        screen: 'TaskDetail',
+                        params: { task: item },
+                    })
+                }
             >
                 <Text style={styles.detailsButtonText}>VER DETALHES</Text>
             </TouchableOpacity>
@@ -109,22 +129,21 @@ export default function HomePage() {
 
     return (
         <View style={styles.screen}>
-
             <View style={styles.container}>
-                    {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>TASKLY</Text>
                     <Avatar.Image size={45} source={require('./../assets/avatars/ellipse1.png')} />
                 </View>
-                <TouchableOpacity style={styles.filtro}><Image source={require('../assets/avatars/filtro.png')} /></TouchableOpacity>
+
+                <TouchableOpacity style={styles.filtro}>
+                    <Image source={require('../assets/avatars/filtro.png')} />
+                </TouchableOpacity>
+
                 {tasks.length === 0 ? (
                     <View style={styles.card}>
                         <Image source={require('../assets/avatars/sad.png')} />
                         <Text style={styles.label}>No momento você não possui tarefa</Text>
-                        <TouchableOpacity
-                            style={styles.buttonEmptyState}
-                            onPress={() => setModalVisible(true)}
-                        >
+                        <TouchableOpacity style={styles.buttonEmptyState} onPress={() => setModalVisible(true)}>
                             <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
                         </TouchableOpacity>
                     </View>
@@ -138,15 +157,18 @@ export default function HomePage() {
                     />
                 )}
             </View>
+
             {tasks.length !== 0 && (
-                <TouchableOpacity
-                    style={styles.buttonFloating}
-                    onPress={() => setModalVisible(true)}
-                >
-                    <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
-                </TouchableOpacity>
+                <>
+                    <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
+                        <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.buttonLogoutFloating} onPress={logout}>
+                        <Text style={styles.resolveButtonText}>Sair</Text>
+                    </TouchableOpacity>
+                </>
             )}
-            {/* Modal */}
+
             <CreateTaskModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -158,7 +180,15 @@ export default function HomePage() {
                 onChangePrazo={setPrazo}
                 onSubmit={handleCreate}
             />
-            {/* Barra de Navegação Inferior */}
+
+            {showModal && credentials && (
+                <BiometricModal
+                    credentials={credentials}
+                    visible={showModal}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+
             <TabBar
                 onClipboardPress={() => console.log('Clipboard')}
                 onBellPress={() => console.log('Bell')}
@@ -214,11 +244,22 @@ const styles = StyleSheet.create({
     },
     buttonFloating: {
         position: 'absolute',
-        bottom: 70,
+        bottom: 130,
         left: 27,
         right: 27,
-        marginTop: 14,
         backgroundColor: '#583CC4',
+        borderRadius: 8,
+        justifyContent: 'center',
+        paddingVertical: 10,
+        marginBottom: 10,
+        zIndex: 10,
+    },
+    buttonLogoutFloating: {
+        position: 'absolute',
+        bottom: 60,
+        left: 27,
+        right: 27,
+        backgroundColor: '#E94D4D',
         borderRadius: 8,
         justifyContent: 'center',
         paddingVertical: 10,
@@ -251,11 +292,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto-Bold',
         color: '#1E1E1E',
     },
-    statusIndicator: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-    },
     cardDescription: {
         marginTop: 6,
         fontSize: 14,
@@ -263,8 +299,8 @@ const styles = StyleSheet.create({
     },
     taskList: {
         gap: 16,
-        paddingBottom: 120,
-      },
+        paddingBottom: 160,
+    },
     checkbox: {
         width: 20,
         height: 20,

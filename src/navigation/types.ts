@@ -22,7 +22,7 @@ export type AuthStackParamList = {
   };
 
   export type TaskStackParamList = {
-    HomeScreen: undefined;
+    HomePage: undefined;
     TaskDetail: { task: Task };
     EditTask: { task: Task };
     AvatarSelectionScreen: undefined;
