@@ -55,7 +55,7 @@ RN-MAR25-MOBILE-MAVERICKS/
 │   │   ├── modal/
 │   │   │   └── BiometricModal.tsx
 │   │   ├── AvatarSelectionScreen.tsx
-│   │   ├── HomeScreen.tsx
+│   │   ├── HomePage.tsx
 │   │   ├── LoginScreen.tsx
 │   │   ├── RegisterScreen.tsx
 │   │   ├── SplashScreen.tsx

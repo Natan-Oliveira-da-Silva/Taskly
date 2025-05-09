@@ -1,10 +1,10 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TaskStackParamList } from './types';
-import HomePage from '../screens/HomePage';
 import TaskDetailScreen from '../screens/TaskDetailScreen';
 import EditTaskScreen from '../screens/EditTaskScreen';
 import AvatarSelectionScreen from '../screens/AvatarSelectionScreen.tsx';
+import HomePage from "../screens/HomePage.tsx";
 
 const Stack = createStackNavigator<TaskStackParamList>();
 
