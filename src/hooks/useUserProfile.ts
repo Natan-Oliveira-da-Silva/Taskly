@@ -41,7 +41,6 @@ export function useUserProfile() {
       console.log('✅ Dados recebidos do backend:', data);
 
       setProfile(data);
-
       const avatar = avatarMap[data.picture] || require('../assets/avatars/ellipse1.png');
       setAvatarSource(avatar);
     } catch (error) {
@@ -49,38 +48,32 @@ export function useUserProfile() {
     }
   };
 
- const updateProfile = async (updatedData: { name: string; phone_number: string; email: string }) => {
-  try {
-    const token = await storage.getToken();
-    console.log('🔑 Token usado na atualização:', token);
+  const updateProfile = async (name: string, phone_number: string, picture: string) => {
+    try {
+      const token = await storage.getToken();
+      if (!token) throw new Error('Token não encontrado.');
 
-    if (!token) throw new Error('Token não encontrado.');
+      const response = await fetch('http://15.229.11.44:3000/profile', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, phone_number, picture }),
+      });
 
-    const response = await fetch('http://15.229.11.44:3000/profile', {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedData),
-    });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('🔴 Erro de resposta da API:', response.status, errorText);
-      throw new Error('Erro ao atualizar perfil');
+      const data = await response.json();
+      setProfile(data);
+      setAvatarSource(avatarMap[data.picture] || avatarMap['avatar_1']);
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
     }
+  };
 
-    const data = await response.json();
-    console.log('✅ Perfil atualizado com sucesso:', data);
-    setProfile(data);
-  } catch (error) {
-    console.error('❌ Erro ao atualizar o perfil:', error);
-    throw error;
-  }
-};
-
-
-  return { profile, avatarSource, updateProfile };
+  return { profile, avatarSource, updateProfile, fetchProfile };
 }
-

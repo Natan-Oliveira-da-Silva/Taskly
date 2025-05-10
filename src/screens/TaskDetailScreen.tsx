@@ -48,7 +48,7 @@ export default function TaskDetailScreen() {
       } catch (error) {
         console.error('Erro ao carregar subtasks da API:', error);
       } finally {
-        setIsLoading(false); // <-- desliga loader
+        setIsLoading(false);
       }
     };
 

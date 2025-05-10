@@ -1,143 +1,144 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, Button, Modal, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useUserProfile } from '../hooks/useUserProfile';
-import { useTheme } from '../context/ThemeContext';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/types';
-import FooterNav from '../components/atoms/FooterNav';
+import { useNavigation } from '@react-navigation/native';
 
-type NavigationProp = StackNavigationProp<RootStackParamList, 'EditProfileScreen'>;
+const avatarMap = {
+  avatar_1: require('../assets/avatars/avatar1.png'),
+  avatar_2: require('../assets/avatars/avatar2.png'),
+  avatar_3: require('../assets/avatars/avatar3.png'),
+  avatar_4: require('../assets/avatars/avatar4.png'),
+  avatar_5: require('../assets/avatars/avatar5.png'),
+};
 
 export default function EditProfileScreen() {
-  const navigation = useNavigation<NavigationProp>();
   const { profile, updateProfile } = useUserProfile();
-  const { isDarkMode } = useTheme();
+  const navigation = useNavigation();
 
   const [name, setName] = useState('');
-  const [phone_number, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState('avatar_1');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setName(profile.name || '');
       setPhoneNumber(profile.phone_number || '');
-      setEmail(profile.email || '');
+      setSelectedAvatar(profile.picture || 'avatar_1');
     }
   }, [profile]);
 
+  const handleAvatarSelect = (avatarKey: string) => {
+    setSelectedAvatar(avatarKey);
+    setModalVisible(false);
+  };
+
   const handleSave = async () => {
-    try {
-      await updateProfile({ name, phone_number, email });
-      Alert.alert('Sucesso', 'Informações atualizadas com sucesso!');
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível atualizar as informações.');
-    }
+    await updateProfile(name, phoneNumber, selectedAvatar);
+    navigation.goBack();
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: isDarkMode ? '#1E1E1E' : '#fff' }]}>
-      <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Text style={[styles.backText, { color: isDarkMode ? '#fff' : '#fff' }]}>‹  VOLTAR</Text>
-            </TouchableOpacity>
-              <Text style={[styles.title, { color: isDarkMode ? '#fff' : '#000' }]}>EDIÇÃO DE PERFIL</Text>
-              <View style={{ width: 80 }} />
-            </View>
-      <Text style={[styles.labelname, { color: isDarkMode ? '#fff' : '#000' }]}>Nome</Text>
+    <View style={styles.container}>
+      <Text style={styles.label}>Nome</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#eee', color: isDarkMode ? '#fff' : '#000' }]}
+        style={styles.input}
         value={name}
         onChangeText={setName}
+        placeholder="Seu nome"
       />
 
-      <Text style={[styles.label, { color: isDarkMode ? '#fff' : '#000' }]}>Telefone</Text>
+      <Text style={styles.label}>Telefone</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#eee', color: isDarkMode ? '#fff' : '#000' }]}
-        value={phone_number}
+        style={styles.input}
+        value={phoneNumber}
         onChangeText={setPhoneNumber}
-        keyboardType="phone-pad"
+        keyboardType="numeric"
+        placeholder="Apenas números"
       />
 
-      <Text style={[styles.label, { color: isDarkMode ? '#fff' : '#000' }]}>Email</Text>
-      <TextInput
-        style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#eee', color: isDarkMode ? '#fff' : '#000' }]}
-        value={email}
-        editable={false}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Salvar</Text>
+      <Text style={styles.label}>Avatar</Text>
+      <TouchableOpacity onPress={() => setModalVisible(true)}>
+        <Image source={avatarMap[selectedAvatar]} style={styles.avatarPreview} />
       </TouchableOpacity>
 
-      <FooterNav navigation={navigation} />
+      <Button title="Salvar" onPress={handleSave} />
+
+      {/* Modal de seleção de avatar */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Escolha seu avatar</Text>
+            <View style={styles.avatarGrid}>
+              {Object.keys(avatarMap).map((key) => (
+                <TouchableOpacity key={key} onPress={() => handleAvatarSelect(key)}>
+                  <Image
+                    source={avatarMap[key]}
+                    style={[
+                      styles.avatarOption,
+                      selectedAvatar === key && styles.selectedAvatar,
+                    ]}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-  },
-  labelname: {
-    fontSize: 16,
-    marginBottom: 6,
-    fontWeight: '600',
-    marginTop:80,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 6,
-    fontWeight: '600',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  label: { fontSize: 16, fontWeight: '600', marginTop: 12 },
   input: {
-    height: 48,
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  saveButton: {
-    marginTop: 30,
-    backgroundColor: '#5B3CC4',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    marginTop: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-  },
-  backText: {
-    paddingTop: 10,
-    fontSize: 20,
-    color: '#fff',
-    fontWeight: 'bold',
-    backgroundColor: '#1E1E1E',
-    marginRight: 50,
-    marginLeft: 5,
     padding: 10,
-    borderRadius:20,
+    marginTop: 6,
+    marginBottom: 12,
+  },
+  avatarPreview: { width: 100, height: 100, borderRadius: 50, alignSelf: 'center', marginVertical: 12 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 16,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 16 },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 20,
+  },
+  avatarOption: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    margin: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedAvatar: {
+    borderColor: '#007BFF',
   },
 });
+
+

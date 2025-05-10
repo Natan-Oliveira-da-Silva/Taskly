@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, SafeAreaView } from 'react-native';
 import ActionCard from '../components/atoms/ActionCard';
 import ProfileInfo from '../components/atoms/ProfileInfo';
@@ -17,10 +17,16 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { isDarkMode } = useTheme();
-  const { profile, avatarSource } = useUserProfile();
-
+  const { profile, avatarSource, fetchProfile } = useUserProfile();
 
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchProfile();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const modalConfigs = {
     '1': {
@@ -51,20 +57,16 @@ export default function ProfileScreen() {
   const handleCardPress = (id: string) => setSelectedActionId(id);
   const closeModal = () => setSelectedActionId(null);
   const config = selectedActionId ? modalConfigs[selectedActionId as keyof typeof modalConfigs] : null;
-  console.log('🖥️ ProfileScreen foi montada');
-
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#1E1E1E' : '#f2f2f2' }]}>
       <ProfileInfo
-      isDarkMode={isDarkMode}
-      name={profile?.name || ''}
-      phone_number={profile?.phone_number || ''}
-      email={profile?.email || ''}
-      avatarSource={avatarSource}
-/>
-
-
+        isDarkMode={isDarkMode}
+        name={profile?.name || ''}
+        phone_number={profile?.phone_number || ''}
+        email={profile?.email || ''}
+        avatarSource={avatarSource}
+      />
 
       <FlatList
         horizontal
@@ -97,24 +99,22 @@ export default function ProfileScreen() {
       <FooterNav />
 
       {config && (
-  <ActionModal
-    visible={!!selectedActionId}
-    onClose={closeModal}
-    title={config.title}
-    description={config.description}
-    confirmLabel={config.confirmLabel}
-    confirmColor={config.confirmColor}
-    isDarkMode={isDarkMode}
-    onConfirm={() => {
-      closeModal();
-      if (selectedActionId === '1') {
-        navigation.navigate('EditProfileScreen');
-      }
-    }}
-  />
-)}
-
-
+        <ActionModal
+          visible={!!selectedActionId}
+          onClose={closeModal}
+          title={config.title}
+          description={config.description}
+          confirmLabel={config.confirmLabel}
+          confirmColor={config.confirmColor}
+          isDarkMode={isDarkMode}
+          onConfirm={() => {
+            closeModal();
+            if (selectedActionId === '1') {
+              navigation.navigate('EditProfileScreen');
+            }
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
     marginBottom: 120,
   },
 });
+
 
 
 

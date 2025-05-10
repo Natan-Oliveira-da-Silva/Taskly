@@ -15,7 +15,7 @@ export default function ProfileInfo({ name, email, phone_number, avatarSource, i
       <Image source={avatarSource} style={styles.avatar} resizeMode="cover" />
       <Text style={[styles.name, { color: isDarkMode ? '#FFFFFF' : '#1E1E1E' }]}>{name}</Text>
       <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>{email}</Text>
-      <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>(99)999999999</Text>
+      <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>{phone_number}</Text>
     </View>
   );
 }
