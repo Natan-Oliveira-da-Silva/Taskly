@@ -1,3 +1,4 @@
+// src/hooks/useUserProfile.ts
 import { useEffect, useState } from 'react';
 import { storage } from '../utils/storage';
 
@@ -67,13 +68,13 @@ export function useUserProfile() {
         throw new Error(errorText);
       }
 
-      const data = await response.json();
-      setProfile(data);
-      setAvatarSource(avatarMap[data.picture] || avatarMap['avatar_1']);
+      // ✅ Recarrega os dados atualizados do perfil
+      await fetchProfile();
     } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
+      console.error('❌ Erro ao atualizar perfil:', error);
     }
   };
 
   return { profile, avatarSource, updateProfile, fetchProfile };
 }
+

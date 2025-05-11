@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Modal, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  Modal,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useNavigation } from '@react-navigation/native';
 
@@ -19,6 +29,7 @@ export default function EditProfileScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('avatar_1');
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -34,9 +45,20 @@ export default function EditProfileScreen() {
   };
 
   const handleSave = async () => {
+    setLoading(true);
     await updateProfile(name, phoneNumber, selectedAvatar);
+    setLoading(false);
     navigation.goBack();
   };
+
+  if (!profile) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007BFF" />
+        <Text style={{ marginTop: 10 }}>Carregando perfil...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -57,12 +79,19 @@ export default function EditProfileScreen() {
         placeholder="Apenas números"
       />
 
+      <Text style={styles.label}>E-mail</Text>
+      <TextInput
+        style={[styles.input, styles.disabledInput]}
+        value={profile.email}
+        editable={false}
+      />
+
       <Text style={styles.label}>Avatar</Text>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <Image source={avatarMap[selectedAvatar]} style={styles.avatarPreview} />
       </TouchableOpacity>
 
-      <Button title="Salvar" onPress={handleSave} />
+      <Button title={loading ? 'Salvando...' : 'Salvar'} onPress={handleSave} disabled={loading} />
 
       {/* Modal de seleção de avatar */}
       <Modal
@@ -106,7 +135,17 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginBottom: 12,
   },
-  avatarPreview: { width: 100, height: 100, borderRadius: 50, alignSelf: 'center', marginVertical: 12 },
+  disabledInput: {
+    backgroundColor: '#f0f0f0',
+    color: '#555',
+  },
+  avatarPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginVertical: 12,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -139,6 +178,14 @@ const styles = StyleSheet.create({
   selectedAvatar: {
     borderColor: '#007BFF',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
+
+
+
 
 
