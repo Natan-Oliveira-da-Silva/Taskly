@@ -36,7 +36,7 @@ export interface Task {
 
 export default function HomePage() {
   const navigation = useNavigation<HomePageNavigationProp>();
-  const { signOut } = useAuth(); // <<< USEAUTH
+  const { signOut } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -61,7 +61,7 @@ export default function HomePage() {
 
   const handleLogout = async () => {
     try {
-      await signOut(); // <<< CHAMADA DO CONTEXTO
+      await signOut();
       await AsyncStorage.clear();
       navigation.reset({
         index: 0,
@@ -142,10 +142,19 @@ export default function HomePage() {
     }
   };
 
-  const sendTaskToAPI = async (title: string, description: string) => {
+  const sendTaskToAPI = async (title: string, description: string, deadline: string) => {
     try {
       const token = await storage.getToken();
       if (!token) throw new Error('Token não encontrado');
+
+      const body = {
+        title,
+        description,
+        done: false,
+        deadline,
+      };
+
+      console.log('Conteúdo enviado no POST:', body);
 
       const response = await fetch('http://15.229.11.44:3000/tasks', {
         method: 'POST',
@@ -153,28 +162,27 @@ export default function HomePage() {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({
-          title,
-          description,
-          done: false,
-        }),
+        body: JSON.stringify(body),
       });
+
+      const responseData = await response.json();
+      console.log('Resposta da API:', responseData);
 
       if (!response.ok) throw new Error('Erro ao criar tarefa na API');
 
       await loadTasksFromAPI();
     } catch (error) {
-      console.error(error);
+      console.error('Erro no envio de tarefa:', error);
     }
   };
 
   const handleCreate = async () => {
-    if (!titulo || !descricao) {
+    if (!titulo || !descricao || !prazo) {
       Alert.alert('Preencha todos os campos obrigatórios');
       return;
     }
 
-    await sendTaskToAPI(titulo, descricao);
+    await sendTaskToAPI(titulo, descricao, prazo);
     setTitulo('');
     setDescricao('');
     setPrazo('');
@@ -267,7 +275,7 @@ export default function HomePage() {
 
         {!isLoading && tasks.length !== 0 && (
             <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
-              <Text style={styles.resolveButtonText}>Criar Tarefas - Sair</Text>
+              <Text style={styles.resolveButtonText}>Criar Tarefas</Text>
             </TouchableOpacity>
         )}
 
