@@ -1,4 +1,3 @@
-import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'react-native';
 import { COLORS } from './src/utils/constants';
@@ -21,3 +20,4 @@ export default function App() {
         </GestureHandlerRootView>
     );
 }
+
