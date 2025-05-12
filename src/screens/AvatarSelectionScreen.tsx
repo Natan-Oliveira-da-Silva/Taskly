@@ -20,7 +20,7 @@ const avatars = [
     require('../assets/avatars/avatar5.png'),
 ];
 
-const borderColors = ['#5B3CC4', '#ca9872', '#32C25B', '#de2000', '#A97E5D'];
+const borderColors = ['#5B3CC4', '#E6E0F7', '#32C25B', '#E63946', '#B58B46'];
 
 export default function AvatarSelectionScreen() {
     const navigation = useNavigation<any>();
@@ -33,8 +33,12 @@ export default function AvatarSelectionScreen() {
         }
 
         try {
+            const profile = await profileService.getProfile();
+
             await profileService.updateProfileAvatar({
                 picture: `avatar_${selected + 1}`,
+                name: profile.name,
+                phone_number: profile.phone_number,
             });
 
             navigation.reset({
@@ -48,9 +52,12 @@ export default function AvatarSelectionScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Escolha seu avatar</Text>
-            <View style={styles.avatarContainer}>
-                {avatars.map((avatar, index) => (
+            <Text style={styles.mainTitle}>SELECIONE SEU AVATAR</Text>
+            <Text style={styles.subTitle}>(Escolha somente um.)</Text>
+
+            {/* Primeira linha (3 avatares) */}
+            <View style={styles.row}>
+                {avatars.slice(0, 3).map((avatar, index) => (
                     <TouchableOpacity
                         key={index}
                         onPress={() => setSelected(index)}
@@ -62,12 +69,45 @@ export default function AvatarSelectionScreen() {
                             },
                         ]}
                     >
-                        <Image source={avatar} style={styles.avatarImage} />
+                        <Image
+                            source={avatar}
+                            style={[
+                                styles.avatarImage,
+                                selected !== null && selected !== index && styles.avatarImageNotSelected,
+                            ]}
+                        />
                     </TouchableOpacity>
                 ))}
             </View>
+
+            {/* Segunda linha (2 avatares) */}
+            <View style={styles.row}>
+                {avatars.slice(3, 5).map((avatar, index) => (
+                    <TouchableOpacity
+                        key={index + 3}
+                        onPress={() => setSelected(index + 3)}
+                        style={[
+                            styles.avatarWrapper,
+                            {
+                                borderColor: selected === index + 3 ? borderColors[index + 3] : 'transparent',
+                                borderWidth: 3,
+                            },
+                        ]}
+                    >
+                        <Image
+                            source={avatar}
+                            style={[
+                                styles.avatarImage,
+                                selected !== null && selected !== index + 3 && styles.avatarImageNotSelected,
+                            ]}
+                        />
+                    </TouchableOpacity>
+                ))}
+            </View>
+
             <Button
-                title="CONFIRMAR"
+                style={styles.avatarBtn}
+                title="CONFIRMAR SELEÇÃO"
                 variant="filled"
                 onPress={handleConfirm}
             />
@@ -83,27 +123,36 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 24,
     },
-    title: {
-        fontSize: 24,
+    mainTitle: {
+        fontSize: 26,
         fontWeight: 'bold',
+        color: COLORS.mainText,
+        marginBottom: 10,
+    },
+    subTitle: {
+        fontSize: 14,
         color: COLORS.mainText,
         marginBottom: 20,
     },
-    avatarContainer: {
+    row: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
         justifyContent: 'center',
-        gap: 12,
-        marginBottom: 20,
+        marginBottom: 12,
     },
     avatarWrapper: {
         borderRadius: 100,
         overflow: 'hidden',
-        margin: 8,
+        marginHorizontal: 8,
     },
     avatarImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
     },
+    avatarImageNotSelected: {
+        opacity: 0.4,
+    },
+    avatarBtn: {
+    marginTop: 50,
+},
 });
