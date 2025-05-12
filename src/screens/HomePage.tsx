@@ -18,6 +18,7 @@ import { RootStackParamList } from '../navigation/types';
 import { storage } from '../utils/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BiometricModal from './modal/BiometricModal';
+import { useAuth } from '../context/AuthContext'; // <<< IMPORTAÇÃO
 
 type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
 
@@ -35,6 +36,7 @@ export interface Task {
 
 export default function HomePage() {
   const navigation = useNavigation<HomePageNavigationProp>();
+  const { signOut } = useAuth(); // <<< USEAUTH
   const [modalVisible, setModalVisible] = useState(false);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -56,6 +58,20 @@ export default function HomePage() {
   useEffect(() => {
     checkBiometricAndAvatarFlow();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(); // <<< CHAMADA DO CONTEXTO
+      await AsyncStorage.clear();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      });
+    } catch (error) {
+      Alert.alert('Erro ao sair');
+      console.error('Erro no logout:', error);
+    }
+  };
 
   const checkBiometricAndAvatarFlow = async () => {
     try {
@@ -251,7 +267,7 @@ export default function HomePage() {
 
         {!isLoading && tasks.length !== 0 && (
             <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
-              <Text style={styles.resolveButtonText}>Criar Tarefa</Text>
+              <Text style={styles.resolveButtonText}>Criar Tarefas - Sair</Text>
             </TouchableOpacity>
         )}
 

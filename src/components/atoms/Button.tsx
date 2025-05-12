@@ -7,7 +7,7 @@ type Props = {
     variant?: 'filled' | 'outlined' | 'green' | 'danger';
     onPress: () => void;
     height?: number;
-    width?: number; // ✅ nova prop opcional
+    width?: number;
     style?: ViewStyle;
 };
 
@@ -15,7 +15,7 @@ export default function Button({ title, variant = 'filled', onPress, height = 47
     const buttonStyle: ViewStyle[] = [
         styles.base,
         { height },
-        width ? { width } : {}, // ✅ aplica largura se definida
+        width ? { width } : {},
         variant === 'filled' && styles.filled,
         variant === 'outlined' && styles.outlined,
         variant === 'green' && styles.green,
@@ -37,7 +37,7 @@ export default function Button({ title, variant = 'filled', onPress, height = 47
 
 const styles = StyleSheet.create({
     base: {
-        width: 329, // padrão, sobrescrito se width for passado
+        width: 329,
         borderRadius: 8,
         paddingHorizontal: 16,
         justifyContent: 'center',

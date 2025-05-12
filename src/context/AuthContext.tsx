@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     const response = await authService.login({ email, password });
-    await storage.saveToken(response.id_token); // persistência
+    await storage.saveToken(response.id_token);
     setIsAuthenticated(true);
   };
 

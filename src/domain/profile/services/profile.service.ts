@@ -21,7 +21,7 @@ const updateProfile = async (
 const updateProfileAvatar = async (
     data: UpdateProfileRequestDTO
 ): Promise<UpdateProfileRequestDTO> => {
-    const response = await api.put<UpdateProfileRequestDTO>('/profile/avatar', data);
+    const response = await api.put<UpdateProfileRequestDTO>('/profile', data);
     return response.data;
 };
 

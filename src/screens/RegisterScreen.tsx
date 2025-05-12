@@ -83,11 +83,13 @@ export default function RegisterScreen() {
         if (!validateFields()) return;
 
         try {
+            const formattedPhone = phone.replace(/\D/g, '');
+
             await authService.register({
                 email,
                 password,
                 name,
-                phone_number: phone,
+                phone_number: formattedPhone,
             });
 
             await AsyncStorage.setItem('firstLogin', 'true');
