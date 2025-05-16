@@ -13,6 +13,9 @@ export type RootStackParamList = {
     TaskStack: { screen: keyof TaskStackParamList; params: { task: Task } } | undefined;
     HomePage: undefined;
     EditProfileScreen: undefined;
+    ProfileScreen: undefined;
+    PreferencesScreen: undefined;
+    TermsScreen: undefined;
 };
 
 export type AuthStackParamList = {
@@ -29,7 +32,8 @@ export type AuthStackParamList = {
     AvatarSelectionScreen: undefined;
     ProfileScreen: undefined;
     PreferencesScreen: undefined;
-    TermsScreen: undefined; 
+    TermsScreen: undefined;
+    EditProfileScreen: undefined;
   };
 
   export interface Task {
