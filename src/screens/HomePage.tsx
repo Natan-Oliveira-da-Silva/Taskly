@@ -59,17 +59,18 @@ export default function HomePage() {
     checkBiometricAndAvatarFlow();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      await AsyncStorage.clear();
+  useEffect(() => {
+    verifyAuth();
+  }, []);
+
+  const verifyAuth = async () => {
+    const token = await storage.getToken();
+    if (!token) {
+      signOut(); // remove qualquer dado e volta pra AuthStack
       navigation.reset({
         index: 0,
         routes: [{ name: 'LoginScreen' }],
       });
-    } catch (error) {
-      Alert.alert('Erro ao sair');
-      console.error('Erro no logout:', error);
     }
   };
 
