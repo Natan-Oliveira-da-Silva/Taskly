@@ -21,7 +21,7 @@ export default function TermsScreen() {
         style={styles.webview}
       />
 
-      <FooterNav backgroundColor="#f2f2f2" />
+      <FooterNav backgroundColor="#f2f2f" />
     </SafeAreaView>
   );
 }
