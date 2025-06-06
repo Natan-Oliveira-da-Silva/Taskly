@@ -1,14 +1,6 @@
 import {useEffect, useState} from 'react';
 import {storage} from '../utils/storage';
 
-// const avatarMap: Record<string, any> = {
-//   avatar_1: require('../assets/avatars/avatar1.png'),
-//   avatar_2: require('../assets/avatars/avatar2.png'),
-//   avatar_3: require('../assets/avatars/avatar3.png'),
-//   avatar_4: require('../assets/avatars/avatar4.png'),
-//   avatar_5: require('../assets/avatars/avatar5.png'),
-// };
-
 const avatarMap: Record<string, string> = {
   avatar_1:
     'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar1.png',

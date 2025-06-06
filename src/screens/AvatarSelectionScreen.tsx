@@ -12,14 +12,6 @@ import {COLORS} from '../utils/constants';
 import Button from '../components/atoms/Button';
 import {profileService} from '../domain/profile';
 
-// const avatars = [
-//     require('../assets/avatars/avatar1.png'),
-//     require('../assets/avatars/avatar2.png'),
-//     require('../assets/avatars/avatar3.png'),
-//     require('../assets/avatars/avatar4.png'),
-//     require('../assets/avatars/avatar5.png'),
-// ];
-
 const avatars = [
   'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar1.png',
   'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar2.png',
@@ -78,7 +70,7 @@ export default function AvatarSelectionScreen() {
               },
             ]}>
             <Image
-              source={{ uri: avatar }}
+              source={{ uri: String(avatar) }}
               style={[
                 styles.avatarImage,
                 selected !== null &&
@@ -107,7 +99,7 @@ export default function AvatarSelectionScreen() {
               },
             ]}>
             <Image
-              source={{ uri: avatar}}
+              source={{ uri: String(avatar)}}
               style={[
                 styles.avatarImage,
                 selected !== null &&

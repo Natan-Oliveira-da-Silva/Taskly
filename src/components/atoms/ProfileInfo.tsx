@@ -19,7 +19,7 @@ export default function ProfileInfo({
   return (
     <View style={styles.container}>
       <Image
-        source={{uri: avatarSource}}
+        source={{uri: String(avatarSource)}}
         style={styles.avatar}
         resizeMode="cover"
       />
