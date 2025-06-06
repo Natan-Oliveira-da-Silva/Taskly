@@ -21,7 +21,7 @@ export default function Header({ onBack }: Props) {
         onPress={onBack}
       />
       <Text style={styles.title}>TASKLY</Text>
-      <Avatar.Image size={45} source={require('../../assets/avatars/ellipse1.png')} />
+      <Avatar.Image size={45} source={require('../../assets/avatars/unknownAvatar.jpg')} />
     </View>
   );
 }

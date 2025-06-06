@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,21 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { Avatar } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import {Avatar} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
 import TabBar from '../components/molecules/TabBar';
 import CreateTaskModal from './modal/CreateTaskModal';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
-import { storage } from '../utils/storage';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/types';
+import {storage} from '../utils/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BiometricModal from './modal/BiometricModal';
-import { useAuth } from '../context/AuthContext'; // <<< IMPORTAÇÃO
+import {useAuth} from '../context/AuthContext'; // <<< IMPORTAÇÃO
 
-type HomePageNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomePage'>;
+type HomePageNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'HomePage'
+>;
 
 export interface Task {
   id: string;
@@ -36,16 +39,19 @@ export interface Task {
 
 export default function HomePage() {
   const navigation = useNavigation<HomePageNavigationProp>();
-  const { signOut } = useAuth();
+  const {signOut} = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [prazo, setPrazo] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [profile, setProfile] = useState<{ picture: string } | null>(null);
+  const [profile, setProfile] = useState<{picture: string} | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showBiometricModal, setShowBiometricModal] = useState(false);
-  const [biometricCredentials, setBiometricCredentials] = useState<{ email: string; password: string } | null>(null);
+  const [biometricCredentials, setBiometricCredentials] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
 
   useEffect(() => {
     loadTasksFromAPI();
@@ -69,7 +75,7 @@ export default function HomePage() {
       signOut(); // remove qualquer dado e volta pra AuthStack
       navigation.reset({
         index: 0,
-        routes: [{ name: 'LoginScreen' }],
+        routes: [{name: 'LoginScreen'}],
       });
     }
   };
@@ -99,7 +105,9 @@ export default function HomePage() {
   const loadUserProfile = async () => {
     try {
       const token = await storage.getToken();
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       const response = await fetch('http://15.228.159.7:3000/profile', {
         headers: {
@@ -114,24 +122,26 @@ export default function HomePage() {
     }
   };
 
-const avatarMap: Record<string, string> = {
-  avatar_1:
-    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar1.png',
-  avatar_2:
-    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar2.png',
-  avatar_3:
-    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar3.png',
-  avatar_4:
-    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar4.png',
-  avatar_5:
-    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar5.png',
-};
+  const avatarMap: Record<string, string> = {
+    avatar_1:
+      'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar1.png',
+    avatar_2:
+      'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar2.png',
+    avatar_3:
+      'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar3.png',
+    avatar_4:
+      'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar4.png',
+    avatar_5:
+      'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar5.png',
+  };
 
   const loadTasksFromAPI = async () => {
     setIsLoading(true);
     try {
       const token = await storage.getToken();
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       const response = await fetch('http://15.228.159.7:3000/tasks', {
         headers: {
@@ -148,10 +158,16 @@ const avatarMap: Record<string, string> = {
     }
   };
 
-  const sendTaskToAPI = async (title: string, description: string, deadline: string) => {
+  const sendTaskToAPI = async (
+    title: string,
+    description: string,
+    deadline: string,
+  ) => {
     try {
       const token = await storage.getToken();
-      if (!token) throw new Error('Token não encontrado');
+      if (!token) {
+        throw new Error('Token não encontrado');
+      }
 
       const body = {
         title,
@@ -174,7 +190,9 @@ const avatarMap: Record<string, string> = {
       const responseData = await response.json();
       console.log('Resposta da API:', responseData);
 
-      if (!response.ok) throw new Error('Erro ao criar tarefa na API');
+      if (!response.ok) {
+        throw new Error('Erro ao criar tarefa na API');
+      }
 
       await loadTasksFromAPI();
     } catch (error) {
@@ -196,121 +214,132 @@ const avatarMap: Record<string, string> = {
   };
 
   const toggleStatus = (id: string) => {
-    setTasks((prev) =>
-        prev.map((task) =>
-            task.id === id
-                ? { ...task, status: task.status === 'pendente' ? 'concluida' : 'pendente' }
-                : task
-        )
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === id
+          ? {
+              ...task,
+              status: task.status === 'pendente' ? 'concluida' : 'pendente',
+            }
+          : task,
+      ),
     );
   };
 
-  const renderTask = ({ item }: { item: Task }) => (
-      <View style={styles.cardTask}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>{item.title}</Text>
-          <TouchableOpacity style={styles.checkbox} onPress={() => toggleStatus(item.id)}>
-            {item.status === 'concluida' && <Image source={require('../assets/avatars/checkbox.png')} />}
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.cardDescription}>{item.description}</Text>
-        {item.tags?.length > 0 && (
-            <View style={styles.tagsContainer}>
-              {item.tags.map((tag, index) => (
-                  <View key={index} style={styles.tag}>
-                    <Text style={styles.tagText}>{tag}</Text>
-                  </View>
-              ))}
-            </View>
-        )}
+  const renderTask = ({item}: {item: Task}) => (
+    <View style={styles.cardTask}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardTitle}>{item.title}</Text>
         <TouchableOpacity
-            style={styles.detailsButton}
-            onPress={() =>
-                navigation.navigate('TaskStack', {
-                  screen: 'TaskDetail',
-                  params: { task: item },
-                })
-            }
-        >
-          <Text style={styles.detailsButtonText}>VER DETALHES</Text>
+          style={styles.checkbox}
+          onPress={() => toggleStatus(item.id)}>
+          {item.status === 'concluida' && (
+            <Image source={require('../assets/avatars/checkbox.png')} />
+          )}
         </TouchableOpacity>
       </View>
+      <Text style={styles.cardDescription}>{item.description}</Text>
+      {item.tags?.length > 0 && (
+        <View style={styles.tagsContainer}>
+          {item.tags.map((tag, index) => (
+            <View key={index} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+      <TouchableOpacity
+        style={styles.detailsButton}
+        onPress={() =>
+          navigation.navigate('TaskStack', {
+            screen: 'TaskDetail',
+            params: {task: item},
+          })
+        }>
+        <Text style={styles.detailsButtonText}>VER DETALHES</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
-      <View style={styles.screen}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>TASKLY</Text>
-            <Avatar.Image
-                size={45}
-                source={
-                  profile?.picture
-                      ? {uri:avatarMap[profile.picture]}
-                      : require('../assets/avatars/ellipse1.png')
-                }
-            />
-          </View>
-
-          <TouchableOpacity style={styles.filtro}>
-            <Image source={require('../assets/avatars/filtro.png')} />
-          </TouchableOpacity>
-
-          {isLoading ? (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#583CC4" />
-              </View>
-          ) : tasks.length === 0 ? (
-              <View style={styles.card}>
-                <Image source={require('../assets/avatars/sad.png')} />
-                <Text style={styles.label}>No momento você não possui tarefa</Text>
-                <TouchableOpacity style={styles.buttonEmptyState} onPress={() => setModalVisible(true)}>
-                  <Text style={styles.resolveButtonText}>Criar Tarefas</Text>
-                </TouchableOpacity>
-              </View>
-          ) : (
-              <FlatList
-                  data={tasks}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderTask}
-                  contentContainerStyle={styles.taskList}
-                  showsVerticalScrollIndicator={false}
-              />
-          )}
+    <View style={styles.screen}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>TASKLY</Text>
+          <Avatar.Image
+            size={45}
+            source={
+              profile?.picture
+                ? {uri: avatarMap[profile.picture]}
+                : require('../assets/avatars/unknownAvatar.jpg')
+            }
+          />
         </View>
 
-        {!isLoading && tasks.length !== 0 && (
-            <TouchableOpacity style={styles.buttonFloating} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity style={styles.filtro}>
+          <Image source={require('../assets/avatars/filtro.png')} />
+        </TouchableOpacity>
+
+        {isLoading ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <ActivityIndicator size="large" color="#583CC4" />
+          </View>
+        ) : tasks.length === 0 ? (
+          <View style={styles.card}>
+            <Image source={require('../assets/avatars/sad.png')} />
+            <Text style={styles.label}>No momento você não possui tarefa</Text>
+            <TouchableOpacity
+              style={styles.buttonEmptyState}
+              onPress={() => setModalVisible(true)}>
               <Text style={styles.resolveButtonText}>Criar Tarefas</Text>
             </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={tasks}
+            keyExtractor={item => item.id}
+            renderItem={renderTask}
+            contentContainerStyle={styles.taskList}
+            showsVerticalScrollIndicator={false}
+          />
         )}
-
-        <CreateTaskModal
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            titulo={titulo}
-            descricao={descricao}
-            prazo={prazo}
-            onChangeTitulo={setTitulo}
-            onChangeDescricao={setDescricao}
-            onChangePrazo={setPrazo}
-            onSubmit={handleCreate}
-        />
-
-        {showBiometricModal && biometricCredentials && (
-            <BiometricModal
-                credentials={biometricCredentials}
-                visible={showBiometricModal}
-                onClose={() => setShowBiometricModal(false)}
-            />
-        )}
-
-        <TabBar
-            onClipboardPress={() => console.log('Clipboard')}
-            onBellPress={() => console.log('Bell')}
-            onMenuPress={() => console.log('Menu')}
-        />
       </View>
+
+      {!isLoading && tasks.length !== 0 && (
+        <TouchableOpacity
+          style={styles.buttonFloating}
+          onPress={() => setModalVisible(true)}>
+          <Text style={styles.resolveButtonText}>Criar Tarefas</Text>
+        </TouchableOpacity>
+      )}
+
+      <CreateTaskModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        titulo={titulo}
+        descricao={descricao}
+        prazo={prazo}
+        onChangeTitulo={setTitulo}
+        onChangeDescricao={setDescricao}
+        onChangePrazo={setPrazo}
+        onSubmit={handleCreate}
+      />
+
+      {showBiometricModal && biometricCredentials && (
+        <BiometricModal
+          credentials={biometricCredentials}
+          visible={showBiometricModal}
+          onClose={() => setShowBiometricModal(false)}
+        />
+      )}
+
+      <TabBar
+        onClipboardPress={() => console.log('Clipboard')}
+        onBellPress={() => console.log('Bell')}
+        onMenuPress={() => console.log('Menu')}
+      />
+    </View>
   );
 }
 
@@ -381,7 +410,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
@@ -444,5 +473,3 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Regular',
   },
 });
-
-

@@ -50,7 +50,7 @@ export function useUserProfile() {
       setProfile(data);
 
       const avatar =
-        avatarMap[data.picture] || require('../assets/avatars/ellipse1.png');
+        avatarMap[data.picture] || require('../assets/avatars/unknownAvatar.jpg');
       setAvatarSource(avatar);
     } catch (error) {
       console.error('❌ Erro ao carregar o perfil:', error);
