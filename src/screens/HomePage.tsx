@@ -101,7 +101,7 @@ export default function HomePage() {
       const token = await storage.getToken();
       if (!token) return;
 
-      const response = await fetch('http://15.229.11.44:3000/profile', {
+      const response = await fetch('http://15.228.159.7:3000/profile', {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -114,13 +114,18 @@ export default function HomePage() {
     }
   };
 
-  const avatarMap: Record<string, any> = {
-    avatar_1: require('../assets/avatars/avatar1.png'),
-    avatar_2: require('../assets/avatars/avatar2.png'),
-    avatar_3: require('../assets/avatars/avatar3.png'),
-    avatar_4: require('../assets/avatars/avatar4.png'),
-    avatar_5: require('../assets/avatars/avatar5.png'),
-  };
+const avatarMap: Record<string, string> = {
+  avatar_1:
+    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar1.png',
+  avatar_2:
+    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar2.png',
+  avatar_3:
+    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar3.png',
+  avatar_4:
+    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar4.png',
+  avatar_5:
+    'https://profile-images-natan-oliveira-da-silva.s3.us-east-1.amazonaws.com/avatar5.png',
+};
 
   const loadTasksFromAPI = async () => {
     setIsLoading(true);
@@ -128,7 +133,7 @@ export default function HomePage() {
       const token = await storage.getToken();
       if (!token) return;
 
-      const response = await fetch('http://15.229.11.44:3000/tasks', {
+      const response = await fetch('http://15.228.159.7:3000/tasks', {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -157,7 +162,7 @@ export default function HomePage() {
 
       console.log('Conteúdo enviado no POST:', body);
 
-      const response = await fetch('http://15.229.11.44:3000/tasks', {
+      const response = await fetch('http://15.228.159.7:3000/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -241,7 +246,7 @@ export default function HomePage() {
                 size={45}
                 source={
                   profile?.picture
-                      ? avatarMap[profile.picture]
+                      ? {uri:avatarMap[profile.picture]}
                       : require('../assets/avatars/ellipse1.png')
                 }
             />

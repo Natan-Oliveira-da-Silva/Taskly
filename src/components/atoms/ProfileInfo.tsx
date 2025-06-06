@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import {View, Text, Image, StyleSheet} from 'react-native';
 
 interface ProfileInfoProps {
   name: string;
@@ -9,13 +9,32 @@ interface ProfileInfoProps {
   isDarkMode: boolean;
 }
 
-export default function ProfileInfo({ name, email, phone_number, avatarSource, isDarkMode }: ProfileInfoProps) {
+export default function ProfileInfo({
+  name,
+  email,
+  phone_number,
+  avatarSource,
+  isDarkMode,
+}: ProfileInfoProps) {
   return (
     <View style={styles.container}>
-      <Image source={avatarSource} style={styles.avatar} resizeMode="cover" />
-      <Text style={[styles.name, { color: isDarkMode ? '#FFFFFF' : '#1E1E1E' }]}>{name}</Text>
-      <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>{email}</Text>
-      <Text style={[styles.infoText, { color: isDarkMode ? '#CCCCCC' : '#666666' }]}>(99)999999999</Text>
+      <Image
+        source={{uri: avatarSource}}
+        style={styles.avatar}
+        resizeMode="cover"
+      />
+      <Text style={[styles.name, {color: isDarkMode ? '#FFFFFF' : '#1E1E1E'}]}>
+        {name}
+      </Text>
+      <Text
+        style={[styles.infoText, {color: isDarkMode ? '#CCCCCC' : '#666666'}]}>
+        {email}
+      </Text>
+      <Text
+        style={[styles.infoText, {color: isDarkMode ? '#CCCCCC' : '#666666'}]}>
+        ({phone_number.slice(0, 2)}) {phone_number.slice(2, 7)}-
+        {phone_number.slice(7, 11)}
+      </Text>
     </View>
   );
 }
@@ -45,4 +64,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

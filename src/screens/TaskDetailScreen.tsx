@@ -29,7 +29,7 @@ export default function TaskDetailScreen() {
         const token = await storage.getToken();
         if (!token) throw new Error('Token não encontrado');
 
-        const response = await fetch('http://15.229.11.44:3000/tasks', {
+        const response = await fetch('http://15.228.159.7:3000/tasks', {
           headers: {
             Authorization: 'Bearer ' + token,
           },
@@ -80,7 +80,7 @@ const confirmSubtask = async (index: number) => {
     const updatedSubtasks = [...confirmedSubtasks.map(s => ({ title: s.text, done: s.checked })), newSubtask];
 
     // Atualiza tarefa com novas subtasks
-    const response = await fetch(`http://15.229.11.44:3000/tasks/${task.id}`, {
+    const response = await fetch(`http://15.228.159.7:3000/tasks/${task.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ const confirmSubtask = async (index: number) => {
         return;
       }
 
-      const response = await fetch(`http://15.229.11.44:3000/tasks/${task.id}`, {
+      const response = await fetch(`http://15.228.159.7:3000/tasks/${task.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: 'Bearer ' + token,

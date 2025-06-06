@@ -85,7 +85,7 @@ export default function EditTaskScreen() {
       };
 
       // Atualiza os dados no servidor
-      const response = await fetch(`http://15.229.11.44:3000/tasks/${task.id}`, {
+      const response = await fetch(`http://15.228.159.7:3000/tasks/${task.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
