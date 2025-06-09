@@ -29,43 +29,35 @@ A arquitetura foi planejada para garantir **clareza, escalabilidade e manutenibi
 ## 📁 Estrutura de Pastas
 
 ```text
-RN-MAR25-MOBILE-MAVERICKS/
-├── src/
-│   ├── assets/
-│   │   └── avatars/
-│   │       ├── avatar1.jpg
-│   │       ├── ellipse1.png
-│   │       ├── Vector.png
-│   │       └── Vector1.png
-│   ├── components/
-│   │   ├── atoms/
-│   │   │   ├── Button.tsx
-│   │   │   ├── Checkbox.tsx
-│   │   │   └── Input.tsx
-│   │   └── molecules/
-│   │       ├── Header.tsx
-│   │       └── TabBar.tsx
-│   ├── navigation/
-│   │   ├── AppNavigator.tsx
-│   │   ├── AuthStack.tsx
-│   │   ├── TabNavigator.tsx
-│   │   ├── TaskStack.tsx
-│   │   └── types.ts
-│   ├── screens/
-│   │   ├── modal/
-│   │   │   └── BiometricModal.tsx
-│   │   ├── AvatarSelectionScreen.tsx
-│   │   ├── HomePage.tsx
-│   │   ├── LoginScreen.tsx
-│   │   ├── RegisterScreen.tsx
-│   │   ├── SplashScreen.tsx
-│   │   ├── SubTaskScreen.tsx
-│   │   └── TaskDetailScreen.tsx
-│   └── utils/
-│       ├── colors.ts
-│       ├── constants.ts
-│       └── typography.ts
-└── App.tsx
+📦 RN-MAR25-MOBILE-MAVERICKS
+├── 📁 src
+│   ├── 📁 assets
+│   │   └── 📁 avatars
+│   ├── 📁 components
+│   │   ├── 📁 atoms
+│   │   └── 📁 molecules
+│   ├── 📁 context
+│   ├── 📁 data
+│   ├── 📁 domain
+│   ├── 📁 hooks
+│   ├── 📁 navigation
+│   └── 📁 screens
+│       ├── 📁 modal
+│       │   └── AvatarSelectionScreen.tsx
+│       ├── EditProfileScreen.tsx
+│       ├── EditTaskScreen.tsx
+│       ├── ErrorScreen.tsx
+│       ├── HomePage.tsx
+│       ├── LoginScreen.tsx
+│       ├── PreferencesScreen.tsx
+│       ├── ProfileScreen.tsx
+│       ├── RegisterScreen.tsx
+│       ├── SplashScreen.tsx
+│       ├── TaskDetailScreen.tsx
+│       └── TermsScreen.tsx
+├── 📁 utils
+└── 📄 .package.json
+
 ```
 
 ---
@@ -104,16 +96,15 @@ O app suporta **tema claro e escuro**, alternando conforme a preferência do usu
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/seu-usuario/taskly.git
-cd taskly
+git clone https://github.com/Natan-Oliveira-da-Silva/RN-Mar25-Mobile-Mavericks.git
+
+cd RN-Mar25-Mobile-Mavericks
 
 # 2. Instale as dependências
 npm install
-# ou
-yarn
 
-# 3. Inicie o Metro Bundler em um terminal separado
-npx react-native start
+# 3. Inicie o Metro Bundler
+npm start
 ```
 
 ### Para rodar no Android
