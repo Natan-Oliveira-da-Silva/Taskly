@@ -98,12 +98,13 @@ O app suporta **tema claro e escuro**, alternando conforme a preferência do usu
 # 1. Clone o repositório
 git clone https://github.com/Natan-Oliveira-da-Silva/RN-Mar25-Mobile-Mavericks.git
 
+# 2. Posicione-se na pasta do projeto
 cd RN-Mar25-Mobile-Mavericks
 
-# 2. Instale as dependências
+# 3. Instale as dependências
 npm install
 
-# 3. Inicie o Metro Bundler
+# 4. Inicie o Metro Bundler
 npm start
 ```
 
