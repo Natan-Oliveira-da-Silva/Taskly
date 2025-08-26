@@ -2,6 +2,10 @@
 
 Aplicativo mobile para gestão de tarefas. Com o Taskly, o usuário pode organizar suas atividades, estabelecer prazos, definir prioridades e personalizar seu perfil. Este projeto foi desenvolvido como parte de um desafio proposto pelos instrutores da trilha de React Native e AWS do Programa de Bolsas da Compass.UOL.
 
+O front-end que a minha equipe desenvolveu interage com uma API que foi disponibilizada por um instrutor do estágio. Após a primeira etapa do desenvolvimento, cada membro da equipe, individualmente, fez o deploy da API usada pelo app no EC2 da AWS e fez o app consumir as imagens dos avatares do S3, seguindo as orientações do instrutor.
+
+Para fazer o deploy da API no EC2 e disponibilizar as imagens dos avatares no S3, eu, Natan, usei uma conta feita com um e-mail criado pela Compass.UOL. Ao término do estágio, esse e-mail foi excluído, o que significa que a conta da AWS que usei foi desativada. Assim, a API e as imagens dos avatares estão indisponíveis e o aplicativo que está neste repositório do GitHub referenciado abaixo não está funcional. Este repositório contém apenas o front-end do aplicativo.
+
 ---
 
 ## 📚 Sumário
