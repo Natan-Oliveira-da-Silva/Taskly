@@ -100,10 +100,10 @@ O app suporta **tema claro e escuro**, alternando conforme a preferência do usu
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/Natan-Oliveira-da-Silva/RN-Mar25-Mobile-Mavericks.git
+git clone https://github.com/Natan-Oliveira-da-Silva/Taskly.git
 
 # 2. Posicione-se na pasta do projeto
-cd RN-Mar25-Mobile-Mavericks
+cd Taskly
 
 # 3. Instale as dependências
 npm install
