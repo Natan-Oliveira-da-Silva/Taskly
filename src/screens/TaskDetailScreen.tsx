@@ -1,26 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ActivityIndicator, ScrollView } from 'react-native';
-import { RootStackParamList } from '../navigation/types';
-import { useNavigation } from '@react-navigation/native';
-import { useRoute } from '@react-navigation/native';
-import { TaskDetailRouteProp } from '../navigation/types';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  ScrollView,
+} from 'react-native';
+import {RootStackParamList} from '../navigation/types';
+import {useNavigation} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
+import {TaskDetailRouteProp} from '../navigation/types';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { storage } from '../utils/storage';
+import {storage} from '../utils/storage';
 
 import Header from '../components/molecules/Header';
 import TabBar from '../components/molecules/TabBar';
 
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDetail'>;
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'TaskDetail'
+>;
 
 export default function TaskDetailScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<TaskDetailRouteProp>();
-  const { task } = route.params;
+  const {task} = route.params;
   const [subtaskInputs, setSubtaskInputs] = useState<string[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [confirmedSubtasks, setConfirmedSubtasks] = useState<{ text: string; checked: boolean }[]>([]);
+  const [confirmedSubtasks, setConfirmedSubtasks] = useState<
+    {text: string; checked: boolean}[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +43,7 @@ export default function TaskDetailScreen() {
         const token = await storage.getToken();
         if (!token) throw new Error('Token não encontrado');
 
-        const response = await fetch('http://15.228.159.7:3000/tasks', {
+        const response = await fetch('http://56.124.110.214:3000/tasks', {
           headers: {
             Authorization: 'Bearer ' + token,
           },
@@ -65,46 +79,54 @@ export default function TaskDetailScreen() {
     setSubtaskInputs(updatedInputs);
   };
 
-const confirmSubtask = async (index: number) => {
-  const inputText = subtaskInputs[index].trim();
-  if (!inputText) return;
+  const confirmSubtask = async (index: number) => {
+    const inputText = subtaskInputs[index].trim();
+    if (!inputText) return;
 
-  try {
-    const token = await storage.getToken();
-    if (!token) throw new Error('Token não encontrado');
+    try {
+      const token = await storage.getToken();
+      if (!token) throw new Error('Token não encontrado');
 
-    // Monta nova subtask
-    const newSubtask = { title: inputText, done: false };
+      // Monta nova subtask
+      const newSubtask = {title: inputText, done: false};
 
-    // Busca subtasks atuais da API (se necessário, ou mantenha localmente com estado)
-    const updatedSubtasks = [...confirmedSubtasks.map(s => ({ title: s.text, done: s.checked })), newSubtask];
+      // Busca subtasks atuais da API (se necessário, ou mantenha localmente com estado)
+      const updatedSubtasks = [
+        ...confirmedSubtasks.map(s => ({title: s.text, done: s.checked})),
+        newSubtask,
+      ];
 
-    // Atualiza tarefa com novas subtasks
-    const response = await fetch(`http://15.228.159.7:3000/tasks/${task.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token,
-      },
-      body: JSON.stringify({
-        subtasks: updatedSubtasks
-      }),
-    });
+      // Atualiza tarefa com novas subtasks
+      const response = await fetch(
+        `http://56.124.110.214:3000/tasks/${task.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token,
+          },
+          body: JSON.stringify({
+            subtasks: updatedSubtasks,
+          }),
+        },
+      );
 
-    if (!response.ok) throw new Error('Erro ao criar subtask');
+      if (!response.ok) throw new Error('Erro ao criar subtask');
 
-    // Limpa input e atualiza estado local
-    const updatedInputs = [...subtaskInputs];
-    updatedInputs.splice(index, 1);
-    setSubtaskInputs(updatedInputs);
+      // Limpa input e atualiza estado local
+      const updatedInputs = [...subtaskInputs];
+      updatedInputs.splice(index, 1);
+      setSubtaskInputs(updatedInputs);
 
-    setConfirmedSubtasks(prev => [...prev, { text: inputText, checked: false }]);
-
-  } catch (error) {
-    console.error('Erro ao enviar subtask para API:', error);
-    Alert.alert('Erro', 'Erro ao criar subtask');
-  }
-};
+      setConfirmedSubtasks(prev => [
+        ...prev,
+        {text: inputText, checked: false},
+      ]);
+    } catch (error) {
+      console.error('Erro ao enviar subtask para API:', error);
+      Alert.alert('Erro', 'Erro ao criar subtask');
+    }
+  };
 
   const toggleSubtaskChecked = (index: number) => {
     const updated = [...confirmedSubtasks];
@@ -128,12 +150,15 @@ const confirmSubtask = async (index: number) => {
         return;
       }
 
-      const response = await fetch(`http://15.228.159.7:3000/tasks/${task.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: 'Bearer ' + token,
+      const response = await fetch(
+        `http://56.124.110.214:3000/tasks/${task.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Erro ao deletar tarefa.');
@@ -142,14 +167,13 @@ const confirmSubtask = async (index: number) => {
       Alert.alert('Sucesso', 'Tarefa resolvida com sucesso!');
       navigation.reset({
         index: 0,
-        routes: [{ name: 'HomePage' }],
+        routes: [{name: 'HomePage'}],
       });
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível resolver a tarefa.');
       console.error(error);
     }
   };
-
 
   const startEditing = (index: number) => {
     setEditingIndex(index);
@@ -158,13 +182,13 @@ const confirmSubtask = async (index: number) => {
   function getPriorityStyle(priority: string) {
     switch (priority) {
       case 'ALTA':
-        return { backgroundColor: '#32C25B' };
+        return {backgroundColor: '#32C25B'};
       case 'MEDIA':
-        return { backgroundColor: '#32C25B' };
+        return {backgroundColor: '#32C25B'};
       case 'BAIXA':
-        return { backgroundColor: '#32C25B' };
+        return {backgroundColor: '#32C25B'};
       default:
-        return { backgroundColor: '#32C25B' };
+        return {backgroundColor: '#32C25B'};
     }
   }
 
@@ -182,7 +206,7 @@ const confirmSubtask = async (index: number) => {
               onBack={() =>
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'HomePage' }],
+                  routes: [{name: 'HomePage'}],
                 })
               }
             />
@@ -190,8 +214,7 @@ const confirmSubtask = async (index: number) => {
             <View style={styles.card}>
               <TouchableOpacity
                 style={styles.editIcon}
-                onPress={() => navigation.navigate('EditTask', { task })}
-              >
+                onPress={() => navigation.navigate('EditTask', {task})}>
                 <Image source={require('../assets/avatars/Vector1.png')} />
               </TouchableOpacity>
 
@@ -216,14 +239,24 @@ const confirmSubtask = async (index: number) => {
 
               <Text style={styles.label}>Prioridade</Text>
               {task.prioridade ? (
-                <View style={[styles.priorityChip, getPriorityStyle(task.prioridade)]}>
-                  <Text style={styles.priorityChipText}>{task.prioridade.toUpperCase()}</Text>
+                <View
+                  style={[
+                    styles.priorityChip,
+                    getPriorityStyle(task.prioridade),
+                  ]}>
+                  <Text style={styles.priorityChipText}>
+                    {task.prioridade.toUpperCase()}
+                  </Text>
                 </View>
               ) : (
-                <Text style={styles.emptyInfoText}>Sem prioridade definida</Text>
+                <Text style={styles.emptyInfoText}>
+                  Sem prioridade definida
+                </Text>
               )}
 
-              <TouchableOpacity style={styles.resolveButton} onPress={deleteTask}>
+              <TouchableOpacity
+                style={styles.resolveButton}
+                onPress={deleteTask}>
                 <Text style={styles.resolveButtonText}>RESOLVER TAREFA</Text>
               </TouchableOpacity>
             </View>
@@ -233,31 +266,40 @@ const confirmSubtask = async (index: number) => {
                 <TextInput
                   value={input}
                   placeholder="Digite a subtask"
-                  onChangeText={(text) => updateSubtaskInput(i, text)}
+                  onChangeText={text => updateSubtaskInput(i, text)}
                 />
                 <TouchableOpacity onPress={() => confirmSubtask(i)}>
-                  <MaterialCommunityIcons name="arrow-right-circle" size={24} color="#32C25B" />
+                  <MaterialCommunityIcons
+                    name="arrow-right-circle"
+                    size={24}
+                    color="#32C25B"
+                  />
                 </TouchableOpacity>
               </View>
             ))}
             {!isLoading && confirmedSubtasks.length === 0 && (
-            <TouchableOpacity onPress={addSubtaskInput} style={styles.subtaskButton}>
-              <Text style={styles.subtaskButtonText}>ADICIONAR SUBTASK</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={addSubtaskInput}
+                style={styles.subtaskButton}>
+                <Text style={styles.subtaskButtonText}>ADICIONAR SUBTASK</Text>
+              </TouchableOpacity>
             )}
             <View style={styles.subtasksScrollArea}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
-                contentContainerStyle={styles.scrollContent}
-                >
+                contentContainerStyle={styles.scrollContent}>
                 {/* Subtasks confirmadas */}
                 {confirmedSubtasks.map((sub, i) => (
                   <View key={`confirmed-${i}`} style={styles.confirmedSubtask}>
                     {editingIndex !== i && (
                       <TouchableOpacity onPress={() => toggleSubtaskChecked(i)}>
                         <MaterialCommunityIcons
-                          name={sub.checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                          name={
+                            sub.checked
+                              ? 'checkbox-marked'
+                              : 'checkbox-blank-outline'
+                          }
                           size={20}
                           color={sub.checked ? '#32C25B' : '#B58B46'}
                         />
@@ -267,7 +309,7 @@ const confirmSubtask = async (index: number) => {
                       <TextInput
                         style={styles.confirmedSubtaskText}
                         value={sub.text}
-                        onChangeText={(text) => {
+                        onChangeText={text => {
                           const updated = [...confirmedSubtasks];
                           updated[i].text = text;
                           setConfirmedSubtasks(updated);
@@ -275,15 +317,26 @@ const confirmSubtask = async (index: number) => {
                         autoFocus
                       />
                     ) : (
-                      <Text style={styles.confirmedSubtaskText}>{sub.text}</Text>
+                      <Text style={styles.confirmedSubtaskText}>
+                        {sub.text}
+                      </Text>
                     )}
                     <TouchableOpacity
-                      onPress={() => (editingIndex === i ? setEditingIndex(null) : startEditing(i))}
-                    >
+                      onPress={() =>
+                        editingIndex === i
+                          ? setEditingIndex(null)
+                          : startEditing(i)
+                      }>
                       {editingIndex === i ? (
-                        <MaterialCommunityIcons name="arrow-right-circle" size={24} color="#32C25B" />
+                        <MaterialCommunityIcons
+                          name="arrow-right-circle"
+                          size={24}
+                          color="#32C25B"
+                        />
                       ) : (
-                        <Image source={require('../assets/avatars/Vector.png')} />
+                        <Image
+                          source={require('../assets/avatars/Vector.png')}
+                        />
                       )}
                     </TouchableOpacity>
                   </View>
@@ -291,8 +344,10 @@ const confirmSubtask = async (index: number) => {
               </ScrollView>
             </View>
             {/* Botão Adicionar Subtask */}
-            {!isLoading && (confirmedSubtasks.length > 0) && (
-              <TouchableOpacity onPress={addSubtaskInput} style={styles.buttonFloating}>
+            {!isLoading && confirmedSubtasks.length > 0 && (
+              <TouchableOpacity
+                onPress={addSubtaskInput}
+                style={styles.buttonFloating}>
                 <Text style={styles.subtaskButtonText}>ADICIONAR SUBTASK</Text>
               </TouchableOpacity>
             )}
@@ -334,7 +389,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     shadowColor: '#000',
     shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowRadius: 4,
     elevation: 4,
   },

@@ -109,7 +109,7 @@ export default function HomePage() {
         return;
       }
 
-      const response = await fetch('http://15.228.159.7:3000/profile', {
+      const response = await fetch('http://56.124.110.214:3000/profile', {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -143,7 +143,7 @@ export default function HomePage() {
         return;
       }
 
-      const response = await fetch('http://15.228.159.7:3000/tasks', {
+      const response = await fetch('http://56.124.110.214:3000/tasks', {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -178,7 +178,7 @@ export default function HomePage() {
 
       console.log('Conteúdo enviado no POST:', body);
 
-      const response = await fetch('http://15.228.159.7:3000/tasks', {
+      const response = await fetch('http://56.124.110.214:3000/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

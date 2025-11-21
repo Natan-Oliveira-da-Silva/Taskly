@@ -38,7 +38,7 @@ export function useUserProfile() {
         return;
       }
 
-      const response = await fetch('http://15.228.159.7:3000/profile', {
+      const response = await fetch('http://56.124.110.214:3000/profile', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -50,7 +50,8 @@ export function useUserProfile() {
       setProfile(data);
 
       const avatar =
-        avatarMap[data.picture] || require('../assets/avatars/unknownAvatar.jpg');
+        avatarMap[data.picture] ||
+        require('../assets/avatars/unknownAvatar.jpg');
       setAvatarSource(avatar);
     } catch (error) {
       console.error('❌ Erro ao carregar o perfil:', error);
@@ -70,7 +71,7 @@ export function useUserProfile() {
         throw new Error('Token não encontrado.');
       }
 
-      const response = await fetch('http://15.228.159.7:3000/profile', {
+      const response = await fetch('http://56.124.110.214:3000/profile', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
